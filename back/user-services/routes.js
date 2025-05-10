@@ -5,7 +5,6 @@ const router = express.Router();
 
 router.get('/', controller.getUsers);
 router.post('/', controller.createUser);
-
-router.post('/lock-actions', controller.lockAction);
+router.post('/lock-actions', controller.lockAction); 
 
 module.exports = router;

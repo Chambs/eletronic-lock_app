@@ -1,14 +1,14 @@
-let logs = [];
+let logList = [];
 
 function addLog(log) {
-  logs.push(log);
+  logList.push(log);
 }
 
-function getLogs() {
-  return logs;
+function getAll() {
+  return logList;
 }
 
 module.exports = {
   addLog,
-  getLogs
+  getAll
 };

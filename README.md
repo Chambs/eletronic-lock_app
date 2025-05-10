@@ -60,17 +60,6 @@ A solução permite a gestão de usuários autorizados, o monitoramento das aç�
 - O user-service publica um evento LOCK_ACTION no barramento de eventos (back/shared-bus/eventBus.js)
 - O log-service escuta esse evento e registra a ação no seu histórico de logs
 - O Frontend pode então buscar a lista de ações diretamente do log-service
-- Diagrama:
-    - [ Frontend ]
-          |
-          ↓  (POST /users/lock-actions)
-      [ User-Service ] 
-          |
-          ↓  (Evento LOCK_ACTION via EventBus)
-      [ Log-Service ]
-          |
-          ↓  (GET /logs)
-      [ Histórico de Ações ]
 
 ---
 

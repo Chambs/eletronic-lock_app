@@ -1,5 +1,6 @@
 const users = require('./users');
-const eventBus = require('../shared-bus/eventBus');
+const axios = require('axios');  
+const LOG_SERVICE_URL = 'http://localhost:3002/logs'; 
 
 function getUsers(req, res) {
   res.json(users.getAll());
@@ -17,17 +18,27 @@ function createUser(req, res) {
   res.status(201).json({ message: 'User created successfully.' });
 }
 
-function lockAction(req, res) {
+async function lockAction(req, res) {
   const { user, action } = req.body;
 
   if (!user || !action) {
     return res.status(400).json({ error: 'User and action are required.' });
   }
 
-  eventBus.emit('LOCK_ACTION', { user, action });
-  console.log(`Evento LOCK_ACTION emitido pelo user-service:`, { user, action });
+  try {
+    await axios.post(LOG_SERVICE_URL, {
+      user,
+      action,
+      timestamp: new Date()
+    });
 
-  res.status(200).json({ message: 'Ação registrada com sucesso.' });
+    console.log(`Ação enviada ao LogService: { user: ${user}, action: ${action} }`);
+    res.status(200).json({ message: 'Ação registrada com sucesso.' });
+
+  } catch (error) {
+    console.error('Erro ao enviar para LogService:', error.message);
+    res.status(500).json({ error: 'Erro ao registrar ação no LogService.' });
+  }
 }
 
 module.exports = {

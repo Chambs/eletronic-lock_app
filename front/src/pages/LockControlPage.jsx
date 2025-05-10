@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom'; // 👈 importa hook de navegação
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import './PageStyles.css';
 
@@ -9,7 +9,7 @@ function LockControlPage() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const loggedUser = localStorage.getItem('user') || 'Anônimo';
+    const loggedUser = localStorage.getItem('user') || 'Guest';
     setUser(loggedUser);
 
     fetchLogs();
@@ -30,10 +30,10 @@ function LockControlPage() {
         user,
         action
       });
-  
+
       setTimeout(() => {
         fetchLogs();
-      }, 300); 
+      }, 300);
     } catch (error) {
       console.error('Erro ao enviar ação:', error);
     }
@@ -51,17 +51,18 @@ function LockControlPage() {
       <div style={{ margin: '20px' }}>
         <button className="page-button" onClick={() => handleAction('ABRIR')}>ABRIR</button>
         <button className="page-button" onClick={() => handleAction('FECHAR')} style={{ marginLeft: '10px' }}>FECHAR</button>
-        <button className="page-button" onClick={handleBack} style={{ marginLeft: '10px' }}>Voltar</button> {/* 👈 botão voltar */}
+        <button className="page-button" onClick={handleBack} style={{ marginLeft: '10px' }}>Voltar</button>
       </div>
 
       <h2>Histórico de Ações</h2>
-      <ul style={{ listStyle: 'none', padding: 0 }}>
+      <ul>
         {logs.map((log, index) => (
-          <li key={index} style={{ marginBottom: '10px' }}>
-            {log.timestamp}: <strong>{log.user}</strong> fez ação <strong>{log.action}</strong>
+          <li key={index}>
+            {log.user} realizou ação {log.action} em {new Date(log.timestamp).toLocaleString()}
           </li>
         ))}
       </ul>
+
     </div>
   );
 }
