@@ -26,11 +26,14 @@ function LockControlPage() {
 
   async function handleAction(action) {
     try {
-      await axios.post('http://localhost:3002/logs', {
+      await axios.post('http://localhost:3001/users/lock-actions', {
         user,
         action
       });
-      fetchLogs();
+  
+      setTimeout(() => {
+        fetchLogs();
+      }, 300); 
     } catch (error) {
       console.error('Erro ao enviar ação:', error);
     }

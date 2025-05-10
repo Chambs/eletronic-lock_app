@@ -16,6 +16,7 @@ app.listen(PORT, () => {
 });
 
 eventBus.on('LOCK_ACTION', (data) => {
+  console.log('LOCK_ACTION recebido no LogService:', data);
 
   const logEntry = {
     user: data.user,

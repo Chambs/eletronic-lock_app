@@ -6,6 +6,18 @@
 
 ---
 
+
+## 👥 Integrantes do grupo
+
+- 21.00476-5 – André Freire Prino 
+- 21.00036-0 - Giuliano Rodrigues Tumoli 
+- 22.00522-6 – Guilherme Thomasi Ronca 
+- 22.00085-2 – João Vitor Marques Ferrenha 
+- 20.00628-4 – Matheus Santos Feitosa 
+- 21.00634-2 - Rafael Maciel Bertani 
+
+---
+
 ## 🔐 Eletronic Lock App
 
 Uma aplicação voltada para o controle de **fechaduras eletrônicas** via aplicação web.  
@@ -43,10 +55,22 @@ A solução permite a gestão de usuários autorizados, o monitoramento das aç�
     - Botão Voltar para a página anterior
     - Lista com histórico das ações feitas (mostrando usuário + ação + data)
 
-## ✅ Barramento de Eventos (implementado com Node.js puro)
-- Comunicação entre microsserviços usando o sistema de eventos do Node.js
-- log-service escuta eventos e registra ações automaticamente
-- Arquivo eventBus.js funciona como barramento genérico
+## ✅ Barramento de Eventos
+- O Frontend envia as ações do usuário (ABRIR ou FECHAR) para o user-service
+- O user-service publica um evento LOCK_ACTION no barramento de eventos (back/shared-bus/eventBus.js)
+- O log-service escuta esse evento e registra a ação no seu histórico de logs
+- O Frontend pode então buscar a lista de ações diretamente do log-service
+- Diagrama:
+    - [ Frontend ]
+          |
+          ↓  (POST /users/lock-actions)
+      [ User-Service ] 
+          |
+          ↓  (Evento LOCK_ACTION via EventBus)
+      [ Log-Service ]
+          |
+          ↓  (GET /logs)
+      [ Histórico de Ações ]
 
 ---
 
@@ -57,7 +81,7 @@ A solução permite a gestão de usuários autorizados, o monitoramento das aç�
     - npm install express cors
     - node server.js (terminal exclusivo)
 - log-service: 
-    - cd ../log-service
+    - cd back/log-service
     - npm install express cors
     - node server.js (terminal exclusivo)
 
@@ -67,16 +91,3 @@ A solução permite a gestão de usuários autorizados, o monitoramento das aç�
 - npm run dev (terminal exclusivo)
 
 ---
-
-## 👥 Integrantes do grupo
-
-- 21.00476-5 – André Freire Prino 
-- 21.00036-0 - Giuliano Rodrigues Tumoli 
-- 22.00522-6 – Guilherme Thomasi Ronca 
-- 22.00085-2 – João Vitor Marques Ferrenha 
-- 20.00628-4 – Matheus Santos Feitosa 
-- 21.00634-2 - Rafael Maciel Bertani 
-
----
-
-

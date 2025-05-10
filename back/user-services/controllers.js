@@ -12,14 +12,26 @@ function createUser(req, res) {
     return res.status(400).json({ error: 'Name and email are required.' });
   }
 
-  const newUser = users.add({ name, email });
+  users.addUser({ name, email });
 
-  eventBus.emit('USER_CREATED', newUser);
+  res.status(201).json({ message: 'User created successfully.' });
+}
 
-  res.status(201).json(newUser);
+function lockAction(req, res) {
+  const { user, action } = req.body;
+
+  if (!user || !action) {
+    return res.status(400).json({ error: 'User and action are required.' });
+  }
+
+  eventBus.emit('LOCK_ACTION', { user, action });
+  console.log(`Evento LOCK_ACTION emitido pelo user-service:`, { user, action });
+
+  res.status(200).json({ message: 'Ação registrada com sucesso.' });
 }
 
 module.exports = {
   getUsers,
   createUser,
+  lockAction,
 };
