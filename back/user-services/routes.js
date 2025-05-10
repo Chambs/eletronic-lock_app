@@ -1,8 +1,10 @@
 const express = require('express');
-const router = express.Router();
-const { getUsers, createUser } = require('./controllers');
+const controller = require('./controllers');
 
-router.get('/', getUsers);
-router.post('/', createUser);
+const router = express.Router();
+
+router.get('/', controller.getUsers);
+router.post('/', controller.createUser);
+router.post('/lock-actions', controller.lockAction); 
 
 module.exports = router;
