@@ -1,4 +1,5 @@
 const users = require('./users');
+const eventBus = require('./eventBus');
 
 function getUsers(req, res) {
   res.json(users.getAll());
@@ -12,6 +13,9 @@ function createUser(req, res) {
   }
 
   const newUser = users.add({ name, email });
+
+  eventBus.emit('USER_CREATED', newUser);
+
   res.status(201).json(newUser);
 }
 

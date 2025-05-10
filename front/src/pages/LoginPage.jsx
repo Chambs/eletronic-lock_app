@@ -9,25 +9,26 @@ function LoginPage() {
 
   async function handleSubmit(e) {
     e.preventDefault();
-
+  
     try {
       const response = await axios.get('http://localhost:3001/users');
       const users = response.data;
-
+  
       const userFound = users.find((user) => user.email === email);
-
+  
       if (userFound) {
         alert('Login realizado com sucesso!');
-        navigate('/home'); 
+        localStorage.setItem('user', userFound.name);
+        navigate('/home');
       } else {
         alert('Usuário não encontrado!');
       }
-
+  
     } catch (error) {
       console.error('Erro ao fazer login:', error);
       alert('Erro no login. Tente novamente.');
     }
-  }
+  }  
 
   return (
     <div className="page">

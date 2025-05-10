@@ -12,10 +12,41 @@ Uma aplicação voltada para o controle de **fechaduras eletrônicas** via aplic
 A solução permite a gestão de usuários autorizados, o monitoramento das ações realizadas na fechadura (como entradas/saídas/tentativas de entrada/etc), além do controle remoto do dispositivo.
 
 ### ✅ Funcionalidades previstas:
-- Cadastro e gerenciamento de usuários;
-- Log de ações (quem entrou, quem saiu, quando, tentativas de entrada, etc);
-- Abertura/fechamento remoto da fechadura pelo app;
-- Interface gráfica web (em React);
+- Cadastro e gerenciamento de usuários
+- Log de ações (quem entrou, quem saiu, quando, tentativas de entrada, etc)
+- Abertura/fechamento remoto da fechadura pelo app
+- Interface gráfica web
+
+---
+
+### 🚀 Funcionalidades Implementadas
+## ✅ Microsserviço: user-service
+- Cadastro de usuários (POST /users)
+- Listagem de usuários (GET /users)
+- Publicação de eventos no barramento ao cadastrar usuários
+
+## ✅ Microsserviço: log-service
+- Registro de ações feitas pelos usuários (POST /logs)
+- Listagem do histórico de ações registradas (GET /logs)
+- Escuta eventos do barramento (LOCK_ACTION) para registrar ações
+
+## ✅ Front-End (React)
+- Tela inicial com opções de login e cadastro
+- Tela de login com autenticação (e armazenamento do usuário logado)
+- Tela de cadastro com registro no user-service
+- Home Page pós-login com opções:
+    - Controle da Fechadura (com botões de ABRIR e FECHAR)
+    - Sair (voltar à tela inicial)
+- Tela de Controle da Fechadura:
+    - Botão ABRIR
+    - Botão FECHAR
+    - Botão Voltar para a página anterior
+    - Lista com histórico das ações feitas (mostrando usuário + ação + data)
+
+## ✅ Barramento de Eventos (implementado com Node.js puro)
+- Comunicação entre microsserviços usando o sistema de eventos do Node.js
+- log-service escuta eventos e registra ações automaticamente
+- Arquivo eventBus.js funciona como barramento genérico
 
 ---
 
