@@ -1,19 +1,19 @@
 import { Routes, Route } from 'react-router-dom';
 import Header from './components/Header';
 import LoginPage from './pages/LoginPage';
-import HomePage from './pages/InitialPage';
+import InitialPage from './pages/InitialPage';
 import SignupPage from './pages/SignupPage';
-import ProtectedHomePage from './pages/HomePage'; 
+import HomePage from './pages/HomePage'; 
 
 function App() {
   return (
     <div>
       <Header />
       <Routes>
-        <Route path="/" element={<HomePage />} />
+        <Route path="/" element={<InitialPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/signup" element={<SignupPage />} />
-        <Route path="/home" element={<ProtectedHomePage />} />
+        <Route path="/home" element={<HomePage />} />
       </Routes>
     </div>
   );
