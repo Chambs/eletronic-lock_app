@@ -2,7 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const routes = require('./routes');
 const logs = require('./logs');
-const eventBus = require('../user-services/eventBus'); 
+const eventBus = require('../shared-bus/eventBus');
 
 const app = express();
 const PORT = 3002;

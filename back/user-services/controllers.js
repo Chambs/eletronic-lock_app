@@ -1,5 +1,5 @@
 const users = require('./users');
-const eventBus = require('./eventBus');
+const eventBus = require('../shared-bus/eventBus');
 
 function getUsers(req, res) {
   res.json(users.getAll());
