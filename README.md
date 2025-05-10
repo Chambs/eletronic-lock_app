@@ -50,6 +50,24 @@ A solução permite a gestão de usuários autorizados, o monitoramento das aç�
 
 ---
 
+### ⚒️ Manual de uso e instalações
+## Backend (/back):
+- user-service:
+    - cd back/user-services
+    - npm install express cors
+    - node server.js (terminal exclusivo)
+- log-service: 
+    - cd ../log-service
+    - npm install express cors
+    - node server.js (terminal exclusivo)
+
+## Frontend (/front):
+- cd front
+- npm install axios react-router-dom
+- npm run dev (terminal exclusivo)
+
+---
+
 ## 👥 Integrantes do grupo
 
 - 21.00476-5 – André Freire Prino 
