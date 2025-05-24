@@ -65,12 +65,12 @@ A solução permite a gestão de usuários autorizados, o monitoramento das aç�
 
 ### ⚒️ Manual de uso e instalações
 ## Backend (/back):
-- user-service:
+- user-services:
     - cd back/user-services
     - npm install express cors axios
     - node server.js (terminal exclusivo)
-- log-service: 
-    - cd back/log-service
+- log-services: 
+    - cd back/log-services
     - npm install express cors 
     - node server.js (terminal exclusivo)
 
