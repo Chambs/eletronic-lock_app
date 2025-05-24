@@ -5,6 +5,8 @@ import InitialPage from './pages/InitialPage';
 import SignupPage from './pages/SignupPage';
 import HomePage from './pages/HomePage'; 
 import LockControlPage from './pages/LockControlPage';
+import LogsPage from './pages/LogsPage';
+import UsersPage from './pages/UsersPage';
 
 function App() {
   return (
@@ -16,6 +18,8 @@ function App() {
         <Route path="/signup" element={<SignupPage />} />
         <Route path="/home" element={<HomePage />} />
         <Route path="/lock-control" element={<LockControlPage />} />
+        <Route path="/logs" element={<LogsPage />} />
+        <Route path="/users" element={<UsersPage />} />
       </Routes>
     </div>
   );

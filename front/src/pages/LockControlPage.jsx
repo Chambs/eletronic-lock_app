@@ -4,38 +4,30 @@ import axios from 'axios';
 import './PageStyles.css';
 
 function LockControlPage() {
-  const [logs, setLogs] = useState([]);
-  const [user, setUser] = useState('');
+  const [status, setStatus] = useState('Carregando...');
+  const [user, setUser] = useState(localStorage.getItem('user') || 'Guest');
   const navigate = useNavigate();
 
   useEffect(() => {
-    const loggedUser = localStorage.getItem('user') || 'Guest';
-    setUser(loggedUser);
-
-    fetchLogs();
+    const evtSource = new EventSource('http://localhost:3003/status-events');
+    evtSource.onmessage = function(event) {
+      const { status } = JSON.parse(event.data);
+      setStatus(status);
+    };
+    evtSource.onerror = function() {
+      evtSource.close();
+      setStatus('Erro ao obter status');
+    };
+    return () => evtSource.close();
   }, []);
-
-  async function fetchLogs() {
-    try {
-      const response = await axios.get('http://localhost:3002/logs');
-      setLogs(response.data);
-    } catch (error) {
-      console.error('Erro ao buscar logs:', error);
-    }
-  }
 
   async function handleAction(action) {
     try {
-      await axios.post('http://localhost:3001/users/lock-actions', {
-        user,
-        action
-      });
-
-      setTimeout(() => {
-        fetchLogs();
-      }, 300);
+      await axios.post('http://localhost:3001/users/lock-actions', { user, action });
+      const novoStatus = action === 'ABRIR' ? 'Aberta' : 'Fechada';
+      await axios.post('http://localhost:3003/status', { status: novoStatus });
     } catch (error) {
-      console.error('Erro ao enviar ação:', error);
+      alert('Erro ao controlar a fechadura.');
     }
   }
 
@@ -47,22 +39,14 @@ function LockControlPage() {
     <div className="page">
       <h1>Controle da Fechadura</h1>
       <p>Usuário logado: {user}</p>
-
+      <div style={{ fontWeight: 'bold', marginBottom: 15 }}>
+        Status atual: <span style={{ color: status === 'Aberta' ? 'green' : 'red' }}>{status}</span>
+      </div>
       <div style={{ margin: '20px' }}>
         <button className="page-button" onClick={() => handleAction('ABRIR')}>ABRIR</button>
         <button className="page-button" onClick={() => handleAction('FECHAR')} style={{ marginLeft: '10px' }}>FECHAR</button>
         <button className="page-button" onClick={handleBack} style={{ marginLeft: '10px' }}>Voltar</button>
       </div>
-
-      <h2>Histórico de Ações</h2>
-      <ul>
-        {logs.map((log, index) => (
-          <li key={index}>
-            {log.user} realizou ação {log.action} em {new Date(log.timestamp).toLocaleString()}
-          </li>
-        ))}
-      </ul>
-
     </div>
   );
 }

@@ -67,7 +67,7 @@ A solução permite a gestão de usuários autorizados, o monitoramento das aç�
 ## Backend (/back):
 - user-services:
     - cd back/user-services
-    - npm install express cors axios
+    - npm install express cors axios multer
     - node server.js (terminal exclusivo)
 - log-services: 
     - cd back/log-services

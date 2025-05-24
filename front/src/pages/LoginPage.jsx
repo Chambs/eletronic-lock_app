@@ -5,45 +5,50 @@ import './PageStyles.css';
 
 function LoginPage() {
   const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
   const navigate = useNavigate();
 
   async function handleSubmit(e) {
     e.preventDefault();
-  
+    setError('');
+
     try {
-      const response = await axios.get('http://localhost:3001/users');
-      const users = response.data;
-  
-      const userFound = users.find((user) => user.email === email);
-  
-      if (userFound) {
-        alert('Login realizado com sucesso!');
-        localStorage.setItem('user', userFound.name);
-        navigate('/home');
-      } else {
-        alert('Usuário não encontrado!');
-      }
-  
-    } catch (error) {
-      console.error('Erro ao fazer login:', error);
-      alert('Erro no login. Tente novamente.');
+      const response = await axios.post('http://localhost:3001/users/login', { email, password });
+      localStorage.setItem('user', response.data.name);
+      localStorage.setItem('email', response.data.email);
+      navigate('/home');
+    } catch (err) {
+      setError('Email ou senha inválidos.');
     }
-  }  
+  }
 
   return (
     <div className="page">
       <form className="login-form" onSubmit={handleSubmit}>
-        <h2>Login</h2>
+        <h2>Entrar</h2>
         <input
           type="email"
-          placeholder="Email"
           className="input-field"
+          placeholder="Email"
           value={email}
-          onChange={(e) => setEmail(e.target.value)}
+          onChange={e => setEmail(e.target.value)}
+          required
+        />
+        <input
+          type="password"
+          className="input-field"
+          placeholder="Senha"
+          value={password}
+          onChange={e => setPassword(e.target.value)}
           required
         />
         <button type="submit" className="login-button">Entrar</button>
+        {error && <div style={{ color: "red", marginTop: 8 }}>{error}</div>}
       </form>
+      <button className="change-button" style={{ marginTop: 16 }} onClick={() => navigate('/signup')}>
+        Criar conta
+      </button>
     </div>
   );
 }
