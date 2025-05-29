@@ -69,7 +69,7 @@ router.post('/join', (req, res) => {
   }
   else{
     addNonAdminUser(code, email);
-    return res.status(200).json({ message: 'Agora você faz é um usuário dessa fechadura.'});
+    return res.status(200).json({ message: 'Agora você é um usuário dessa fechadura.'});
   }
   
 });
