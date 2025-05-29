@@ -28,7 +28,7 @@ function LogsPage() {
   return (
     <div className="page">
       <h1>Histórico de Ações da Fechadura</h1>
-      <button className="page-button" style={{ marginBottom: 24 }} onClick={() => navigate('/home')}>Voltar</button>
+      <button className="page-button" style={{ marginBottom: 24 }} onClick={() => navigate(`/home/${localStorage.getItem('code')}`)}>Voltar</button>
       {loading ? (
         <p>Carregando...</p>
       ) : logs.length === 0 ? (
@@ -37,7 +37,7 @@ function LogsPage() {
         <div className="logs-grid-container">
           {logs.map((log, idx) => (
             <div key={idx} className="log-card">
-              <div>
+              <div style={{ color:'#666' }}>
                 <b>{log.user}</b> realizou ação <b>{log.action}</b>
               </div>
               <div style={{ fontSize: 13, color: '#666' }}>

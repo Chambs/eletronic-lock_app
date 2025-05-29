@@ -73,6 +73,10 @@ A solução permite a gestão de usuários autorizados, o monitoramento das aç�
     - cd back/log-services
     - npm install express cors 
     - node server.js (terminal exclusivo)
+- lock-services:
+    - cd back/lock-services
+    - npm install express cors 
+    - node server.js (terminal exclusivo)
 
 ## Frontend (/front):
 - cd front

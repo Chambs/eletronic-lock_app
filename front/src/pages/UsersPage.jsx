@@ -107,7 +107,7 @@ function UsersPage() {
   return (
     <div className="page">
       <h1>Usuários Cadastrados</h1>
-      <button className="page-button" style={{ marginBottom: 24 }} onClick={() => navigate('/home')}>Voltar</button>
+      <button className="page-button" style={{ marginBottom: 24 }} onClick={() => navigate(`/home/${localStorage.getItem('code')}`)}>Voltar</button>
       {loading ? (
         <p>Carregando...</p>
       ) : users.length === 0 ? (
@@ -128,7 +128,7 @@ function UsersPage() {
                   marginRight: 12
                 }}
               />
-              <div style={{ flex: 1 }}>
+              <div style={{ flex: 1, color:'#3B3B3B' }}>
                 <div>
                   <b>Nome:</b> {user.name}
                 </div>

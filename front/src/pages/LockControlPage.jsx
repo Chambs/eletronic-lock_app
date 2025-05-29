@@ -8,31 +8,44 @@ function LockControlPage() {
   const [user, setUser] = useState(localStorage.getItem('user') || 'Guest');
   const navigate = useNavigate();
 
+  // useEffect(() => {
+  //   const evtSource = new EventSource('http://localhost:3003/status-events');
+  //   evtSource.onmessage = function(event) {
+  //     const { status } = JSON.parse(event.data);
+  //     setStatus(status);
+  //   };
+  //   evtSource.onerror = function() {
+  //     evtSource.close();
+  //     setStatus('Erro ao obter status');
+  //   };
+  //   return () => evtSource.close();
+  // }, []);
+
   useEffect(() => {
-    const evtSource = new EventSource('http://localhost:3003/status-events');
-    evtSource.onmessage = function(event) {
-      const { status } = JSON.parse(event.data);
-      setStatus(status);
-    };
-    evtSource.onerror = function() {
-      evtSource.close();
-      setStatus('Erro ao obter status');
-    };
-    return () => evtSource.close();
+    async function fetchStatus() {
+      try {
+        const resp = await axios.get(`http://localhost:3003/status?code=${localStorage.getItem('code')}`);
+        setStatus(resp.data.status);
+      } catch {
+        setStatus('Desconhecido');
+      }
+    }
+    const intervalId = setInterval(fetchStatus, 100);
+    return () => clearInterval(intervalId);
   }, []);
 
   async function handleAction(action) {
     try {
       await axios.post('http://localhost:3001/users/lock-actions', { user, action });
       const novoStatus = action === 'ABRIR' ? 'Aberta' : 'Fechada';
-      await axios.post('http://localhost:3003/status', { status: novoStatus });
+      await axios.post('http://localhost:3003/status', { status: novoStatus, code: localStorage.getItem('code') });
     } catch (error) {
       alert('Erro ao controlar a fechadura.');
     }
   }
 
   function handleBack() {
-    navigate('/home');
+    navigate(`/home/${localStorage.getItem('code')}`);
   }
 
   return (

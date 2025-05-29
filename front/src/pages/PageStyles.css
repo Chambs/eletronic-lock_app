@@ -16,6 +16,10 @@
     font-size: 3rem;
     margin-bottom: 20px;
   }
+
+  .page h2 {
+    color: #3B3B3B;
+  }
   
   .page p {
     font-size: 1.5rem;
@@ -168,6 +172,20 @@
     flex-wrap: wrap;
     gap: 24px;
     justify-content: center;
+  }
+
+  .locks-grid-container {
+    display: grid; /* Ativa o Grid Layout */
+    grid-template-columns: repeat(2, 1fr); /* Cria 2 colunas de tamanho igual */
+    gap: 16px; /* Espaçamento entre os itens */
+    padding: 16px; /* Espaço interno do contêiner */
+  }
+
+  .lock-card {
+    background-color: #fff; /* Exemplo de fundo para os cartões */
+    padding: 16px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   }
 
 .profile-image,

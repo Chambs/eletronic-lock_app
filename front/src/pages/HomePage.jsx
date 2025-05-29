@@ -10,7 +10,7 @@ function HomePage() {
   useEffect(() => {
     async function fetchStatus() {
       try {
-        const resp = await axios.get('http://localhost:3003/status');
+        const resp = await axios.get(`http://localhost:3003/status?code=${localStorage.getItem('code')}`);
         setLockStatus(resp.data.status);
       } catch {
         setLockStatus('Desconhecido');
@@ -18,12 +18,6 @@ function HomePage() {
     }
     fetchStatus();
   }, []);
-  
-
-  function handleLogout() {
-    localStorage.removeItem('user');
-    navigate('/');
-  }
 
   function goToControl() {
     navigate('/lock-control');
@@ -35,6 +29,14 @@ function HomePage() {
 
   function goToUsers() {
     navigate('/users');
+  }
+
+  function goToSelect() {
+    navigate('/home');
+  }
+
+  function goToInviteCode() {
+    //navigate('');
   }
 
   return (
@@ -61,7 +63,8 @@ function HomePage() {
         <button className="page-button" onClick={goToControl}>Controle da Fechadura</button>
         <button className="page-button" onClick={goToLogs}>Histórico de Logs</button>
         <button className="page-button" onClick={goToUsers}>Usuários</button>
-        <button className="page-button" onClick={handleLogout} style={{ backgroundColor: '#e57373', color: '#fff' }}>Sair</button>
+        <button className="page-button" onClick={goToInviteCode}>Mostrar código de convite</button>
+        <button className="page-button" onClick={goToSelect} style={{ backgroundColor: '#e57373', color: '#fff' }}>Voltar</button>
       </div>
     </div>
   );
