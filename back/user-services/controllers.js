@@ -4,6 +4,8 @@ const LOG_SERVICE_URL = 'http://localhost:3002/logs';
 const { getAll, findByEmail, emailExists, addUser, findUsersByCode, addAdminCodeToUser, addNonAdminCodeToUser } = require('./users');
 const multer = require('multer');
 const path = require('path');
+const eventBus = require('../shared-bus/eventBus');
+
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
@@ -61,41 +63,33 @@ async function lockAction(req, res) {
   }
 }
 
-function updateUser(req, res) {
-  const oldEmail = req.params.email;
-  const { name, email, password, currentUser } = req.body;
+async function updateUser(req, res) {
+  const email = req.params.email;
+  const { name, email: newEmail, password } = req.body;
+  let profileImage = req.file ? req.file.filename : undefined;
 
-  const user = findByEmail(oldEmail);
-
-  if (!user) {
-    return res.status(404).json({ error: 'Usuário não encontrado.' });
-  }
-
-  if (!currentUser || currentUser !== oldEmail) {
-    return res.status(403).json({ error: 'Acesso negado. Você só pode editar a sua própria conta.' });
-  }
-
-  if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-    return res.status(400).json({ error: 'Formato de email inválido.' });
-  }
-  if (email && email !== oldEmail && findByEmail(email)) {
-    return res.status(400).json({ error: 'Já existe um usuário com este email.' });
-  }
+  const user = users.getUser(email);
+  if (!user) return res.status(404).json({ error: 'Usuário não encontrado' });
 
   if (name) user.name = name;
-  if (email) user.email = email;
-  if (password && password.length >= 6) user.password = password;
-  if (req.file) user.profileImage = req.file.filename;
+  if (password) user.password = password;
+  if (profileImage) user.profileImage = profileImage;
 
-  /*
-   * ao mudar o email, precisará alterar as informações na lockList (server:3003)
-   * (já existe uma função updateEmail em lockList e já está importada em lockRoutes)
-   * e vai precisar também checar se esse email novo já existe na base de dados
-  */
-  return res.json({
-    message: 'Usuário atualizado com sucesso!',
-    user: { name: user.name, email: user.email, profileImage: user.profileImage }
-  });
+  if (newEmail && newEmail !== email) {
+    if (users.getUser(newEmail)) {
+      return res.status(409).json({ error: 'Já existe um usuário com esse e-mail.' });
+    }
+
+    users.deleteUser(email);
+    user.email = newEmail;
+    users.addUser(user);
+
+    eventBus.emit('userEmailChanged', { oldEmail: email, newEmail });
+    return res.json({ message: 'Usuário atualizado com sucesso!', user });
+  }
+
+  users.updateUser(email, user);
+  res.json({ message: 'Usuário atualizado com sucesso!', user });
 }
 
 function login(req, res) {
@@ -113,16 +107,16 @@ function login(req, res) {
   res.json({ message: 'Login successful', name: user.name, email: user.email, profileImage: user.profileImage });
 }
 
-function register(req, res){ //registrar usuário (como admin) em uma nova fechadura
-  const {email, code} = req.body;
+function register(req, res) { 
+  const { email, code } = req.body;
   addAdminCodeToUser(email, code);
-  res.json({ message: 'User registred'});
+  res.json({ message: 'User registred' });
 }
 
-function join(req, res){ //usuário fazer parte (como nonAdmin) de uma fechadura já existente
-  const {email, code} = req.body;
+function join(req, res) { 
+  const { email, code } = req.body;
   addNonAdminCodeToUser(email, code);
-  res.json({ message: 'Join successful'});
+  res.json({ message: 'Join successful' });
 }
 
 module.exports = {

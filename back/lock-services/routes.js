@@ -1,5 +1,5 @@
 const express = require('express');
-const { findLocksByEmail, getStatus, setStatus, isLockCodeExists, hasNoAdminForLock, assignAdminToLock, isInviteCodeExists, isEmailRegistered, addNonAdminUser, getRegistrationCodeByInviteCode, getInviteCodeByRegistrationCode, hasAdmin, updateEmail } = require('./lockList');
+const { findLocksByEmail, getStatus, setStatus, isLockCodeExists, hasNoAdminForLock, assignAdminToLock, isInviteCodeExists, isEmailRegistered, addNonAdminUser, getRegistrationCodeByInviteCode, getInviteCodeByRegistrationCode, hasAdmin, updateEmail } = require('./controllers');
 const eventBus = require('../shared-bus/eventBus');
 const router = express.Router();
 
@@ -16,26 +16,6 @@ router.post('/status', (req, res) => {
   setStatus(code, status);
   res.json({ status: getStatus() });
 });
-
-// router.get('/status-events', (req, res) => {
-//   res.set({
-//     'Content-Type': 'text/event-stream',
-//     'Cache-Control': 'no-cache',
-//     'Connection': 'keep-alive'
-//   });
-//   res.flushHeaders();
-
-//   const sendStatus = (status) => {
-//     res.write(`data: ${JSON.stringify({ status })}\n\n`);
-//   };
-
-//   sendStatus(getStatus());
-
-//   const listener = (status) => sendStatus(status);
-//   eventBus.on('statusChanged', listener);
-
-//   req.on('close', () => eventBus.off('statusChanged', listener));
-// });
 
 router.post('/locks', (req, res) => {
   const {email} = req.body;
