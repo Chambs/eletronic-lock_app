@@ -8,11 +8,11 @@ const PORT = 3004;
 app.use(express.json());
 app.use(cors());
 
-app.post('/events', (req, res) => {
+app.post('/update-email', (req, res) => {
     const event = req.body
-    axios.post('http://localhost:3001/event', event); //user-services
-    axios.post('http://localhost:3002/event', event); //log-services
-    axios.post('http://localhost:3003/event', event); //lock-services
+    // axios.post('http://localhost:3001/update-email', event); //user-services
+    // axios.post('http://localhost:3002/update-email', event); //log-services
+    axios.post('http://localhost:3003/update-email', event); //lock-services
     res.status(200).send({msg:'ok'});
 })
 

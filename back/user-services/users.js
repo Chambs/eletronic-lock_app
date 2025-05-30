@@ -47,6 +47,14 @@ function deleteUser(email) {
   if (idx !== -1) users.splice(idx, 1);
 }
 
+function updateEmail(email, newEmail) {
+  for (let user of users) {
+    if (user.email === email) {
+      user.email = newEmail;
+    }
+  }
+}
+
 function findUsersByCode(code) {
   return users.filter(u => u.codes && u.codes.includes(code));
 }
@@ -77,6 +85,7 @@ module.exports = {
   addUser,
   updateUser,
   deleteUser,
+  updateEmail,
   findUsersByCode,
   addAdminCodeToUser,
   addNonAdminCodeToUser

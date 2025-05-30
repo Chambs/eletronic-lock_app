@@ -61,4 +61,10 @@ router.get('/invite-code', (req, res) => {
   return res.json({inviteCode: getInviteCodeByRegistrationCode(code)});
 });
 
+router.post('/update-email', (req, res) => {
+  const {email, newEmail} = req.body;
+  updateEmail(email, newEmail);
+  res.status(200).json({ message: 'Email atualizado.'});
+});
+
 module.exports = router;

@@ -1,12 +1,14 @@
 let registredLocks = [
   {
-    lockNumber: 1,                                          
-    registrationCode: 'LOCK1',                                
-    inviteCode: 'invite1',                                  
-    adminEmail: '', 
-    lockName: '',                                           
-    status: 'Fechada',                                     
-    nonAdminUsers: [                                         
+    lockNumber: 1,                                            // Lock number
+    registrationCode: 'LOCK1',                                // Registration code
+    inviteCode: 'invite1',                                    // Invitation code
+    adminEmail: '', //email: 'admin@example.com'              // Admin user's email
+    lockName: '',                                             // Lock name
+    status: 'Fechada',                                        // Status
+    nonAdminUsers: [                                          // List of non-Admin users
+      //{ email: 'guest1@example.com' },
+      //{ email: 'guest2@example.com' }
     ]
   },
   {
