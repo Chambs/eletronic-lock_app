@@ -36,7 +36,7 @@ function LockControlPage() {
 
   async function handleAction(action) {
     try {
-      await axios.post('http://localhost:3001/users/lock-actions', { user, action });
+      await axios.post('http://localhost:3001/users/lock-actions', { user:user, action:action, code:localStorage.getItem('code')  });
       const novoStatus = action === 'ABRIR' ? 'Aberta' : 'Fechada';
       await axios.post('http://localhost:3003/status', { status: novoStatus, code: localStorage.getItem('code') });
     } catch (error) {

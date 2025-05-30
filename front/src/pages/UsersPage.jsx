@@ -21,7 +21,7 @@ function UsersPage() {
   async function fetchUsers() {
     setLoading(true);
     try {
-      const resp = await axios.get('http://localhost:3001/users');
+      const resp = await axios.get(`http://localhost:3001/users?code=${localStorage.getItem('code')}`);
       setUsers(resp.data);
     } catch {
       setUsers([]);
@@ -98,6 +98,8 @@ function UsersPage() {
 
       closeEdit();
       fetchUsers();
+      localStorage.setItem('user', editForm.name);
+      localStorage.setItem('email', editForm.email);
       alert('Usuário atualizado com sucesso!');
     } catch (err) {
       setError(err.response?.data?.error || 'Erro ao atualizar usuário.');
@@ -135,7 +137,10 @@ function UsersPage() {
                 <div>
                   <b>Email:</b> {user.email}
                 </div>
-                {user.email === loggedEmail && (
+                <div>
+                  <b>Função:</b> {user.role}
+                </div>
+                {user.email == loggedEmail && user.name == localStorage.getItem('user') && (
                   <button
                     className="page-button"
                     style={{ marginTop: 12, padding: "4px 16px", fontSize: 14 }}

@@ -15,9 +15,8 @@ function LogsPage() {
   async function fetchLogs() {
     setLoading(true);
     try {
-      const resp = await axios.get('http://localhost:3002/logs');
-      const sorted = resp.data.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
-      setLogs(sorted);
+      const resp = await axios.get(`http://localhost:3002/logs?code=${localStorage.getItem('code')}`);
+      setLogs(resp.data);
     } catch (error) {
       setLogs([]);
       alert('Erro ao buscar logs.');

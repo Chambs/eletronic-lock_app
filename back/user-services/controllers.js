@@ -1,7 +1,7 @@
 const users = require('./users');
 const axios = require('axios');
 const LOG_SERVICE_URL = 'http://localhost:3002/logs';
-
+const { getAll, findByEmail, emailExists, addUser, findUsersByCode, addAdminCodeToUser, addNonAdminCodeToUser } = require('./users');
 const multer = require('multer');
 const path = require('path');
 
@@ -21,7 +21,8 @@ function isValidEmail(email) {
 }
 
 function getUsers(req, res) {
-  res.json(users.getAll().map(({ name, email, profileImage }) => ({ name, email, profileImage })));
+  const { code } = req.query;
+  res.json(findUsersByCode(code));
 }
 
 function createUser(req, res) {
@@ -33,16 +34,16 @@ function createUser(req, res) {
   if (!isValidEmail(email)) {
     return res.status(400).json({ error: 'Invalid email format.' });
   }
-  if (users.findByEmail(email)) {
+  if (findByEmail(email)) {
     return res.status(400).json({ error: 'This email is already registered.' });
   }
 
-  users.addUser({ name, email, password });
+  addUser({ name, email, password });
   res.status(201).json({ message: 'User created successfully.' });
 }
 
 async function lockAction(req, res) {
-  const { user, action } = req.body;
+  const { user, action, code } = req.body;
   if (!user || !action) {
     return res.status(400).json({ error: 'User and action are required.' });
   }
@@ -51,6 +52,7 @@ async function lockAction(req, res) {
     await axios.post(LOG_SERVICE_URL, {
       user,
       action,
+      code,
       timestamp: new Date()
     });
     res.status(200).json({ message: 'Ação registrada com sucesso.' });
@@ -63,7 +65,7 @@ function updateUser(req, res) {
   const oldEmail = req.params.email;
   const { name, email, password, currentUser } = req.body;
 
-  const user = users.findByEmail(oldEmail);
+  const user = findByEmail(oldEmail);
 
   if (!user) {
     return res.status(404).json({ error: 'Usuário não encontrado.' });
@@ -76,7 +78,7 @@ function updateUser(req, res) {
   if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
     return res.status(400).json({ error: 'Formato de email inválido.' });
   }
-  if (email && email !== oldEmail && users.findByEmail(email)) {
+  if (email && email !== oldEmail && findByEmail(email)) {
     return res.status(400).json({ error: 'Já existe um usuário com este email.' });
   }
 
@@ -85,13 +87,16 @@ function updateUser(req, res) {
   if (password && password.length >= 6) user.password = password;
   if (req.file) user.profileImage = req.file.filename;
 
+  /*
+   * ao mudar o email, precisará alterar as informações na lockList (server:3003)
+   * (já existe uma função updateEmail em lockList e já está importada em lockRoutes)
+   * e vai precisar também checar se esse email novo já existe na base de dados
+  */
   return res.json({
     message: 'Usuário atualizado com sucesso!',
     user: { name: user.name, email: user.email, profileImage: user.profileImage }
   });
 }
-
-
 
 function login(req, res) {
   const { email, password } = req.body;
@@ -108,11 +113,25 @@ function login(req, res) {
   res.json({ message: 'Login successful', name: user.name, email: user.email, profileImage: user.profileImage });
 }
 
+function register(req, res){ //registrar usuário (como admin) em uma nova fechadura
+  const {email, code} = req.body;
+  addAdminCodeToUser(email, code);
+  res.json({ message: 'User registred'});
+}
+
+function join(req, res){ //usuário fazer parte (como nonAdmin) de uma fechadura já existente
+  const {email, code} = req.body;
+  addNonAdminCodeToUser(email, code);
+  res.json({ message: 'Join successful'});
+}
+
 module.exports = {
   getUsers,
   createUser,
   lockAction,
   login,
   updateUser,
-  upload
+  upload,
+  register,
+  join
 };

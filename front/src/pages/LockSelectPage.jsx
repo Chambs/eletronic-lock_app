@@ -78,7 +78,7 @@ function LockSelectPage() {
           }}
           onClick={() => handleRegisterAsGuest()}
         >
-          Cadastrar como convidado de uma fechadura já existente
+          Entrar como convidado de uma fechadura já existente
         </button>
       </div>
 

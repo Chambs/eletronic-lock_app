@@ -14,10 +14,16 @@ function JoinLockPage() {
 
     try {
       const response = await axios.post('http://localhost:3003/join', { code:code, email:localStorage.getItem('email') } );
+
+      try{
+        await axios.post('http://localhost:3001/users/join', { email: localStorage.getItem('email'), code: response.data.registrationCode });
+      }catch(error){
+        setError(error.response.data.error);
+      }
+
       alert(response.data.message);
       navigate('/home');
     } catch (err) {
-      //err.response?.status === 404 || err.response?.status === 409
       setError(err.response.data.error);
     }
 
