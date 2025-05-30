@@ -1,6 +1,5 @@
 const express = require('express');
 const { findLocksByEmail, getStatus, setStatus, isLockCodeExists, hasNoAdminForLock, assignAdminToLock, isInviteCodeExists, isEmailRegistered, addNonAdminUser, getRegistrationCodeByInviteCode, getInviteCodeByRegistrationCode, hasAdmin, updateEmail } = require('./controllers');
-const eventBus = require('../shared-bus/eventBus');
 const router = express.Router();
 
 router.get('/status', (req, res) => {

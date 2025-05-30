@@ -4,8 +4,6 @@ const LOG_SERVICE_URL = 'http://localhost:3002/logs';
 const { getAll, findByEmail, emailExists, addUser, findUsersByCode, addAdminCodeToUser, addNonAdminCodeToUser } = require('./users');
 const multer = require('multer');
 const path = require('path');
-const eventBus = require('../shared-bus/eventBus');
-
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
@@ -84,7 +82,7 @@ async function updateUser(req, res) {
     user.email = newEmail;
     users.addUser(user);
 
-    eventBus.emit('userEmailChanged', { oldEmail: email, newEmail });
+    //eventBus.emit('userEmailChanged', { oldEmail: email, newEmail });
     return res.json({ message: 'Usuário atualizado com sucesso!', user });
   }
 

@@ -77,6 +77,10 @@ A solução permite a gestão de usuários autorizados, o monitoramento das aç�
     - cd back/lock-services
     - npm install express cors 
     - node server.js (terminal exclusivo)
+- shared-bus:
+    - cd back/shared-bus
+    - npm install express cors axios
+    - node eventBus.js (terminal exclusivo)
 
 ## Frontend (/front):
 - cd front
@@ -104,7 +108,7 @@ Agora o sistema suporta várias fechaduras. Todas as fechaduras que estarão int
 
 #### 👤 Como se cadastrar:
 
-- **Como administrador (criador da fechadura):**
+- **Como administrador (dono da fechadura):**
   - Após realizar o login, selecione a opção **"Cadastrar como admin de uma nova fechadura"**
   - Insira o **código de registro** correspondente (ex: `LOCK1`)
 

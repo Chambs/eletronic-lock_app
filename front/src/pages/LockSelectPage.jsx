@@ -99,7 +99,7 @@ function LockSelectPage() {
                     <b>Código de Registro:</b> {lock.registrationCode}
                   </div>
                   <div>
-                    <b>Função:</b> {lock.role}
+                    <b>Função:</b> {lock.isAdmin?"Admin":"Convidado"}
                   </div>
                   <button onClick={() => handleNavigate(lock.registrationCode)}>Entrar</button>
                 </div>
