@@ -2,7 +2,6 @@ const express = require('express');
 const cors = require('cors');
 const routes = require('./routes');
 const eventBus = require('../shared-bus/eventBus');
-const locksManager = require('./locks'); // Usando o arquivo acima
 
 const app = express();
 const PORT = 3003;
