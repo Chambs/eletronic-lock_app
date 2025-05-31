@@ -63,28 +63,6 @@ A solução permite a gestão de usuários autorizados, o monitoramento das aç�
 
 ---
 
-### ⚒️ Manual de uso e instalações
-## Backend (/back):
-- user-services:
-    - cd back/user-services
-    - npm install express cors axios multer
-    - node server.js (terminal exclusivo)
-- log-services: 
-    - cd back/log-services
-    - npm install express cors 
-    - node server.js (terminal exclusivo)
-- lock-services:
-    - cd back/lock-services
-    - npm install express cors 
-    - node server.js (terminal exclusivo)
-
-## Frontend (/front):
-- cd front
-- npm install axios react-router-dom
-- npm run dev (terminal exclusivo)
-
----
-
 ### 🔒 Códigos de Registro e Convite
 
 Agora o sistema suporta várias fechaduras. Todas as fechaduras que estarão integradas com esse sistema estarão pré-cadastradas nele, possuíndo um código de registro e um código de convite previamente definidos, portanto, para interagir com uma fechadura, é necessário utilizar códigos específicos:
@@ -113,3 +91,23 @@ Agora o sistema suporta várias fechaduras. Todas as fechaduras que estarão int
   - Insira o **código de convite** correspondente (ex: `invite1`)
 
 ---
+
+### ⚒️ Manual de uso e instalações
+## Backend (/back):
+- user-services:
+    - cd back/user-services
+    - npm install express cors axios multer
+    - node server.js (terminal exclusivo)
+- log-services: 
+    - cd back/log-services
+    - npm install express cors 
+    - node server.js (terminal exclusivo)
+- lock-services:
+    - cd back/lock-services
+    - npm install express cors 
+    - node server.js (terminal exclusivo)
+
+## Frontend (/front):
+- cd front
+- npm install axios react-router-dom
+- npm run dev (terminal exclusivo)
