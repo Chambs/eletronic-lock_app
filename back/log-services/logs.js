@@ -1,18 +1,4 @@
-let logList = [
-  // {
-  //     code: 'LOCK1',
-  //     logs: [
-  //       { user, action, timestamp },
-  //       { user, action, timestamp }'
-  //     ]
-  //   },
-  //   {
-  //     code: 'LOCK2',
-  //     logs: [
-  //       { user, action, timestamp }
-  //     ]
-  // }
-];
+let logList = [];
 
 function addLog(log) {
   logList.push(log);

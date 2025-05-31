@@ -8,19 +8,6 @@ function LockControlPage() {
   const [user, setUser] = useState(localStorage.getItem('user') || 'Guest');
   const navigate = useNavigate();
 
-  // useEffect(() => {
-  //   const evtSource = new EventSource('http://localhost:3003/status-events');
-  //   evtSource.onmessage = function(event) {
-  //     const { status } = JSON.parse(event.data);
-  //     setStatus(status);
-  //   };
-  //   evtSource.onerror = function() {
-  //     evtSource.close();
-  //     setStatus('Erro ao obter status');
-  //   };
-  //   return () => evtSource.close();
-  // }, []);
-
   useEffect(() => {
     async function fetchStatus() {
       try {

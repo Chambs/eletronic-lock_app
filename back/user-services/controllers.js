@@ -4,8 +4,6 @@ const LOG_SERVICE_URL = 'http://localhost:3002/logs';
 const { getAll, findByEmail, emailExists, addUser, findUsersByCode, addAdminCodeToUser, addNonAdminCodeToUser } = require('./users');
 const multer = require('multer');
 const path = require('path');
-const eventBus = require('../shared-bus/eventBus');
-
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
@@ -80,11 +78,11 @@ async function updateUser(req, res) {
       return res.status(409).json({ error: 'Já existe um usuário com esse e-mail.' });
     }
 
-    users.deleteUser(email);
-    user.email = newEmail;
-    users.addUser(user);
+    users.updateEmail(email, newEmail);
 
-    eventBus.emit('userEmailChanged', { oldEmail: email, newEmail });
+    //envia para mudar de email na tabela do microserviço lock (3003)
+    const resp = await axios.post('http://localhost:3003/update-email',{ email: email, newEmail: newEmail });
+
     return res.json({ message: 'Usuário atualizado com sucesso!', user });
   }
 

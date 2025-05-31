@@ -53,9 +53,9 @@ function LockSelectPage() {
         <button
           style={{
             flex: 1,
-            height: '10vh', // 10% da altura da tela
+            height: '10vh',
             fontSize: '16px',
-            backgroundColor: '#4CAF50', // Cor de fundo para o botão de admin
+            backgroundColor: '#4CAF50',
             color: 'white',
             border: 'none',
             borderRadius: '8px',
@@ -68,9 +68,9 @@ function LockSelectPage() {
         <button
           style={{
             flex: 1,
-            height: '10vh', // 10% da altura da tela
+            height: '10vh',
             fontSize: '16px',
-            backgroundColor: '#2196F3', // Cor de fundo para o botão de usuário convidado
+            backgroundColor: '#2196F3',
             color: 'white',
             border: 'none',
             borderRadius: '8px',
@@ -99,7 +99,7 @@ function LockSelectPage() {
                     <b>Código de Registro:</b> {lock.registrationCode}
                   </div>
                   <div>
-                    <b>Função:</b> {lock.role}
+                    <b>Função:</b> {lock.isAdmin?"Admin":"Convidado"}
                   </div>
                   <button onClick={() => handleNavigate(lock.registrationCode)}>Entrar</button>
                 </div>
