@@ -1,20 +1,4 @@
-const users = [
-  // {
-  //     name: "jose",
-  //     email: "jose@example.com",
-  //     password: "123456",
-  //     profileImage: null,
-  //     admin: ["LOCK1"],
-  //     nonAdmin: ["LOCK2", "LOCK3"]
-  // },{
-  //     name: "ana",
-  //     email: "ana@example.com",
-  //     password: "123456",
-  //     profileImage: null,
-  //     admin: [""],
-  //     nonAdmin: ["LOCK1"]
-  // }
-];
+const users = [];
 function getAll() {
   return users;
 }

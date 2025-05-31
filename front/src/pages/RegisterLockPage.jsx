@@ -25,7 +25,6 @@ function RegisterLockPage() {
       alert(response.data.message);
       navigate('/home');
     } catch (err) {
-      //err.response?.status === 404 || err.response?.status === 409
       setError(err.response.data.error);
     }
 
