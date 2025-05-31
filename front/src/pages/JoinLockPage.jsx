@@ -13,22 +13,35 @@ function JoinLockPage() {
     setError('');
 
     try {
-      const response = await axios.post('http://localhost:3003/join', { code:code, email:localStorage.getItem('email') } );
+      const response = await axios.post('http://localhost:3003/join', { invitationCode:code, email:localStorage.getItem('email') } );
+
+      // try{
+      //   await axios.post('http://localhost:3001/users/join', { email: localStorage.getItem('email'), code: response.data.registrationCode });
+      // }catch(error){
+      //   setError(error.response.data.error);
+      // }
+
+      // try{
+      //   await axios.post('http://localhost:3002/logs/join', { 
+      //     user: localStorage.getItem('user'), 
+      //     email: localStorage.getItem('email'), 
+      //     timestamp: new Date(), 
+      //     code: response.data.registrationCode 
+      //   });
+      // }catch{ /* empty */ }
 
       try{
-        await axios.post('http://localhost:3001/users/join', { email: localStorage.getItem('email'), code: response.data.registrationCode });
-      }catch(error){
-        setError(error.response.data.error);
-      }
-
-      try{
-        await axios.post('http://localhost:3002/logs/join', { 
+        await axios.post('http://localhost:3004/join',{
+          invitationCode: code,
+          email:localStorage.getItem('email'),
           user: localStorage.getItem('user'), 
-          email: localStorage.getItem('email'), 
-          timestamp: new Date(), 
-          code: response.data.registrationCode 
+          code: response.data.registrationCode,
+          timestamp: new Date()
         });
-      }catch{ /* empty */ }
+      }catch(error){
+        console.log("oi");
+        console.log(error);
+      }
 
       alert(response.data.message);
       navigate('/home');

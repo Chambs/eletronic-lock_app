@@ -38,20 +38,20 @@ router.post('/register', (req, res) => {
 });
 
 router.post('/join', (req, res) => {
-  const {code, email} = req.body;
+  const {invitationCode, email} = req.body;
 
-  if ( !isInviteCodeExists(code) ) {
+  if ( !isInviteCodeExists(invitationCode) ) {
     return res.status(404).json({ error: 'Código de convite inválido.' });
   }
-  else if( isEmailRegistered(code, email) ) {
+  else if( isEmailRegistered(invitationCode, email) ) {
     return res.status(409).json({ error: 'Você já está registrado nessa fechadura.' });
   }
-  else if( !hasAdmin(code) ){
+  else if( !hasAdmin(invitationCode) ){
     return res.status(423).json({ error: 'Esta fechadura ainda não está disponível.' });
   }
   else{
-    addNonAdminUser(code, email);
-    return res.status(200).json({ message: 'Agora você é um usuário dessa fechadura.', registrationCode: getRegistrationCodeByInviteCode(code)});
+    addNonAdminUser(invitationCode, email);
+    return res.status(200).json({ message: 'Agora você é um usuário dessa fechadura.', registrationCode: getRegistrationCodeByInviteCode(invitationCode)});
   }
   
 });
