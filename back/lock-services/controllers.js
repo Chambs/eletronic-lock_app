@@ -1,15 +1,12 @@
-const eventBus = require('../shared-bus/eventBus');
-
 let registredLocks = [
   {
-    lockNumber: 1,                                          
-    registrationCode: 'LOCK1',                                
-    inviteCode: 'invite1',                                  
-    adminEmail: '', 
-    lockName: '',                                           
-    status: 'Fechada',                                     
-    nonAdminUsers: [                                         
-    ]
+    lockNumber: 1,
+    registrationCode: 'LOCK1',
+    inviteCode: 'invite1',
+    adminEmail: '',
+    lockName: '',
+    status: 'Fechada',
+    nonAdminUsers: []
   },
   {
     lockNumber: 2,
@@ -57,7 +54,7 @@ function findLocksByEmail(email) {
       result.push({
         lockName: lock.lockName,
         registrationCode: lock.registrationCode,
-        role: 'Admin'
+        isAdmin: true
       });
     }
     
@@ -66,7 +63,7 @@ function findLocksByEmail(email) {
         result.push({
           lockName: lock.lockName,
           registrationCode: lock.registrationCode,
-          role: 'nonAdmin'
+          isAdmin: false
         });
       }
     });

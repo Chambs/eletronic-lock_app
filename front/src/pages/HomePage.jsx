@@ -20,7 +20,7 @@ function HomePage() {
     fetchStatus();
   }, []);
 
-    useEffect(() => {
+  useEffect(() => {
     async function returnInviteCode(){
         try {
           const resp = await axios.get(`http://localhost:3003/invite-code?code=${localStorage.getItem('code')}`);

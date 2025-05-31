@@ -1,6 +1,5 @@
 const express = require('express');
 const { findLocksByEmail, getStatus, setStatus, isLockCodeExists, hasNoAdminForLock, assignAdminToLock, isInviteCodeExists, isEmailRegistered, addNonAdminUser, getRegistrationCodeByInviteCode, getInviteCodeByRegistrationCode, hasAdmin, updateEmail } = require('./controllers');
-const eventBus = require('../shared-bus/eventBus');
 const router = express.Router();
 
 router.get('/status', (req, res) => {
@@ -39,20 +38,20 @@ router.post('/register', (req, res) => {
 });
 
 router.post('/join', (req, res) => {
-  const {code, email} = req.body;
+  const {invitationCode, email} = req.body;
 
-  if ( !isInviteCodeExists(code) ) {
+  if ( !isInviteCodeExists(invitationCode) ) {
     return res.status(404).json({ error: 'Código de convite inválido.' });
   }
-  else if( isEmailRegistered(code, email) ) {
+  else if( isEmailRegistered(invitationCode, email) ) {
     return res.status(409).json({ error: 'Você já está registrado nessa fechadura.' });
   }
-  else if( !hasAdmin(code) ){
+  else if( !hasAdmin(invitationCode) ){
     return res.status(423).json({ error: 'Esta fechadura ainda não está disponível.' });
   }
   else{
-    addNonAdminUser(code, email);
-    return res.status(200).json({ message: 'Agora você é um usuário dessa fechadura.', registrationCode: getRegistrationCodeByInviteCode(code)});
+    addNonAdminUser(invitationCode, email);
+    return res.status(200).json({ message: 'Agora você é um usuário dessa fechadura.', registrationCode: getRegistrationCodeByInviteCode(invitationCode)});
   }
   
 });
@@ -60,6 +59,12 @@ router.post('/join', (req, res) => {
 router.get('/invite-code', (req, res) => {
   const {code} = req.query;
   return res.json({inviteCode: getInviteCodeByRegistrationCode(code)});
+});
+
+router.post('/update-email', (req, res) => {
+  const {email, newEmail} = req.body;
+  updateEmail(email, newEmail);
+  res.status(200).json({ message: 'Email atualizado.'});
 });
 
 module.exports = router;

@@ -237,6 +237,6 @@ def main():
             print("UID lido: {}".format(uid))
         utime.sleep(0.5)
 
-# Executa o programa
 # main()
+# not needed
 

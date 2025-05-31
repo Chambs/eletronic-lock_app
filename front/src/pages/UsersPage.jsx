@@ -138,7 +138,7 @@ function UsersPage() {
                   <b>Email:</b> {user.email}
                 </div>
                 <div>
-                  <b>Função:</b> {user.role}
+                  <b>Função:</b> {user.isAdmin?"Admin":"Convidado"}
                 </div>
                 {user.email == loggedEmail && user.name == localStorage.getItem('user') && (
                   <button

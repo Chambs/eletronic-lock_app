@@ -20,4 +20,12 @@ router.post('/', (req, res) => {
   res.status(201).json({ message: 'Log registrado com sucesso.' });
 });
 
+router.post('/join', (req, res) => {
+  const { user, email, timestamp, code } = req.body;
+
+  logs.addOrCreateLog(code, { user, action:"entrou como convidado", timestamp });
+
+  res.status(201).json({ message: 'Log registrado com sucesso.' });
+});
+
 module.exports = router;
