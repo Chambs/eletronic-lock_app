@@ -21,6 +21,15 @@ function JoinLockPage() {
         setError(error.response.data.error);
       }
 
+      try{
+        await axios.post('http://localhost:3002/logs/join', { 
+          user: localStorage.getItem('user'), 
+          email: localStorage.getItem('email'), 
+          timestamp: new Date(), 
+          code: response.data.registrationCode 
+        });
+      }catch{ /* empty */ }
+
       alert(response.data.message);
       navigate('/home');
     } catch (err) {

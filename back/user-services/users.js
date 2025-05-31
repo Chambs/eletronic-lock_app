@@ -31,8 +31,11 @@ function getUser(email) {
   return users.find(u => u.email === email);
 }
 
-function addUser(user) {
-  users.push(user);
+function addUser({ name, email, password, profileImage = null }) {
+  if (emailExists(email)) return null;
+  const newUser = { name:name, email:email, password:password, profileImage:profileImage, admin:[], nonAdmin:[] };
+  users.push(newUser);
+  return newUser;
 }
 
 function updateUser(email, newUser) {
@@ -56,25 +59,44 @@ function updateEmail(email, newEmail) {
 }
 
 function findUsersByCode(code) {
-  return users.filter(u => u.codes && u.codes.includes(code));
+  return users
+    .filter(user => user.admin.includes(code) || user.nonAdmin.includes(code))
+    .map(user => ({
+      name: user.name,
+      email: user.email,
+      profileImage: user.profileImage,
+      isAdmin: user.admin.includes(code) ? true : false
+    }));
 }
 
-function addAdminCodeToUser(email, code) {
+function addAdminCodeToUser(email, registrationCode) {
   const user = users.find(u => u.email === email);
-  if (user) {
-    if (!user.codes) user.codes = [];
-    if (!user.codes.includes(code)) user.codes.push(code);
-    user.isAdmin = true;
+  if (!user) {
+    return false;
   }
+
+  if (user.admin.length === 1 && user.admin[0] === "") {
+    user.admin[0] = registrationCode;
+  } else if (!user.admin.includes(registrationCode)) {
+    user.admin.push(registrationCode);
+  }
+
+  return true;
 }
 
-function addNonAdminCodeToUser(email, code) {
+function addNonAdminCodeToUser(email, registrationCode) {
   const user = users.find(u => u.email === email);
-  if (user) {
-    if (!user.codes) user.codes = [];
-    if (!user.codes.includes(code)) user.codes.push(code);
-    user.isAdmin = false;
+  if (!user) {
+    return false;
   }
+
+  if (user.nonAdmin.length === 1 && user.nonAdmin[0] === "") {
+    user.nonAdmin[0] = registrationCode;
+  } else if (!user.nonAdmin.includes(registrationCode)) {
+    user.nonAdmin.push(registrationCode);
+  }
+
+  return true;
 }
 
 module.exports = {
