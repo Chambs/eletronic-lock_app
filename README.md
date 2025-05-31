@@ -65,12 +65,16 @@ A solução permite a gestão de usuários autorizados, o monitoramento das aç�
 
 ### ⚒️ Manual de uso e instalações
 ## Backend (/back):
-- user-service:
+- user-services:
     - cd back/user-services
-    - npm install express cors axios
+    - npm install express cors axios multer
     - node server.js (terminal exclusivo)
-- log-service: 
-    - cd back/log-service
+- log-services: 
+    - cd back/log-services
+    - npm install express cors 
+    - node server.js (terminal exclusivo)
+- lock-services:
+    - cd back/lock-services
     - npm install express cors 
     - node server.js (terminal exclusivo)
 
@@ -78,5 +82,34 @@ A solução permite a gestão de usuários autorizados, o monitoramento das aç�
 - cd front
 - npm install axios react-router-dom
 - npm run dev (terminal exclusivo)
+
+---
+
+### 🔒 Códigos de Registro e Convite
+
+Agora o sistema suporta várias fechaduras. Todas as fechaduras que estarão integradas com esse sistema estarão pré-cadastradas nele, possuíndo um código de registro e um código de convite previamente definidos, portanto, para interagir com uma fechadura, é necessário utilizar códigos específicos:
+
+- **Código de Registro**: utilizado para **cadastrar uma nova fechadura** e tornar-se o **administrador** dela.
+- **Código de Convite**: utilizado para **participar de uma fechadura já existente** como **usuário comum**.
+
+#### 🔐 Fechaduras cadastradas para testes
+
+| Fechadura    | Código de Registro | Código de Convite |
+|--------------|--------------------|-------------------|
+| Fechadura 1  | `LOCK1`            | `invite1`         |
+| Fechadura 2  | `LOCK2`            | `invite2`         |
+| Fechadura 3  | `LOCK3`            | `invite3`         |
+| Fechadura 4  | `LOCK4`            | `invite4`         |
+| Fechadura 5  | `LOCK5`            | `invite5`         |
+
+#### 👤 Como se cadastrar:
+
+- **Como administrador (criador da fechadura):**
+  - Após realizar o login, selecione a opção **"Cadastrar como admin de uma nova fechadura"**
+  - Insira o **código de registro** correspondente (ex: `LOCK1`)
+
+- **Como usuário comum (participante):**
+  - Após realizar o login, selecione a opção **"Entrar como convidado de uma fechadura já existente"**
+  - Insira o **código de convite** correspondente (ex: `invite1`)
 
 ---

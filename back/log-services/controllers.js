@@ -1,9 +1,5 @@
 const logs = require('./logs');
 
-function getLogs(req, res) {
-  res.json(logs.getLogs());
-}
-
 function createLog(req, res) {
   const { user, action } = req.body;
 

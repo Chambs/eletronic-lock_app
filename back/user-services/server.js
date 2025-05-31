@@ -8,6 +8,7 @@ const PORT = 3001;
 app.use(cors());
 app.use(express.json());
 app.use('/users', routes);
+app.use('/uploads', express.static('uploads'));
 
 app.listen(PORT, () => {
   console.log(`UserService is running on http://localhost:${PORT}`);

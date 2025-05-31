@@ -1,19 +1,67 @@
-let userList = [];
-
-function addUser(user) {
-  userList.push(user);
-}
-
+const users = [];
 function getAll() {
-  return userList;
+  return users;
 }
 
 function findByEmail(email) {
-  return userList.find(user => user.email === email);
+  return users.find(u => u.email === email);
+}
+
+function emailExists(email) {
+  return !!users.find(u => u.email === email);
+}
+
+function getUser(email) {
+  return users.find(u => u.email === email);
+}
+
+function addUser(user) {
+  users.push(user);
+}
+
+function updateUser(email, newUser) {
+  const idx = users.findIndex(u => u.email === email);
+  if (idx !== -1) {
+    users[idx] = { ...users[idx], ...newUser };
+  }
+}
+
+function deleteUser(email) {
+  const idx = users.findIndex(u => u.email === email);
+  if (idx !== -1) users.splice(idx, 1);
+}
+
+function findUsersByCode(code) {
+  return users.filter(u => u.codes && u.codes.includes(code));
+}
+
+function addAdminCodeToUser(email, code) {
+  const user = users.find(u => u.email === email);
+  if (user) {
+    if (!user.codes) user.codes = [];
+    if (!user.codes.includes(code)) user.codes.push(code);
+    user.isAdmin = true;
+  }
+}
+
+function addNonAdminCodeToUser(email, code) {
+  const user = users.find(u => u.email === email);
+  if (user) {
+    if (!user.codes) user.codes = [];
+    if (!user.codes.includes(code)) user.codes.push(code);
+    user.isAdmin = false;
+  }
 }
 
 module.exports = {
-  addUser,
   getAll,
-  findByEmail
+  findByEmail,
+  emailExists,
+  getUser,
+  addUser,
+  updateUser,
+  deleteUser,
+  findUsersByCode,
+  addAdminCodeToUser,
+  addNonAdminCodeToUser
 };
