@@ -4,7 +4,6 @@ import axios from 'axios';
 import './PageStyles.css';
 
 function LockSelectPage() {
-
   const [locks, setLocks] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -13,7 +12,7 @@ function LockSelectPage() {
   useEffect(() => {
     async function fetchStatus() {
       try {
-        const resp = await axios.post('http://localhost:3003/locks',{email: localStorage.getItem('email')});
+        const resp = await axios.post('http://localhost:3003/locks', { email: localStorage.getItem('email') });
         setLocks(resp.data.list);
       } catch {
         setLocks([]);
@@ -23,21 +22,19 @@ function LockSelectPage() {
     }
     fetchStatus();
   }, []);
-  
-
 
   const handleNavigate = (registrationCode) => {
     localStorage.setItem('code', registrationCode);
-    navigate(`/home/${registrationCode}`); // Redireciona para /home/:cod
+    navigate(`/home/${registrationCode}`);
   };
 
   const handleRegisterAdmin = () => {
     navigate('/register-lock');
-  }
+  };
 
   const handleRegisterAsGuest = () => {
     navigate('/join-lock');
-  }
+  };
 
   function handleLogout() {
     localStorage.removeItem('user');
@@ -49,67 +46,45 @@ function LockSelectPage() {
     <div className="page">
       <h1>Eletronic Lock App</h1>
       
-      <div className="button-container" style={{ display: 'flex', gap: '16px', marginBottom: '20px' }}>
-        <button
-          style={{
-            flex: 1,
-            height: '10vh',
-            fontSize: '16px',
-            backgroundColor: '#4CAF50',
-            color: 'white',
-            border: 'none',
-            borderRadius: '8px',
-            cursor: 'pointer'
-          }}
-          onClick={() => handleRegisterAdmin()}
+      <div className="lockselect-actions">
+        <button className="button-home lockselect-action"
+          style={{ backgroundColor: '#4CAF50' }}
+          onClick={handleRegisterAdmin}
         >
-          Cadastrar como admin de uma nova fechadura
+          Cadastrar nova fechadura
         </button>
-        <button
-          style={{
-            flex: 1,
-            height: '10vh',
-            fontSize: '16px',
-            backgroundColor: '#2196F3',
-            color: 'white',
-            border: 'none',
-            borderRadius: '8px',
-            cursor: 'pointer'
-          }}
-          onClick={() => handleRegisterAsGuest()}
+        <button className="button-home lockselect-action"
+          style={{ backgroundColor: '#2196F3' }}
+          onClick={handleRegisterAsGuest}
         >
-          Entrar como convidado de uma fechadura já existente
+          Entrar como convidado
         </button>
       </div>
 
-
       {loading ? (
-          <p>Carregando...</p>
-        ) : locks.length === 0 ? (
-          <p>Nenhuma fechadura cadastrada ainda.</p>
-        ) : (
-          <div className="locks-grid-container">
-            {locks.map((lock, idx) => (
-              <div key={idx} className="lock-card" style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-                <div style={{ flex: 1, color:'#3B3B3B' }}>
-                  <div>
-                    <b>Nome da Fechadura:</b> {lock.lockName}
-                  </div>
-                  <div>
-                    <b>Código de Registro:</b> {lock.registrationCode}
-                  </div>
-                  <div>
-                    <b>Função:</b> {lock.isAdmin?"Admin":"Convidado"}
-                  </div>
-                  <button onClick={() => handleNavigate(lock.registrationCode)}>Entrar</button>
-                </div>
+        <p>Carregando...</p>
+      ) : locks.length === 0 ? (
+        <p>Nenhuma fechadura cadastrada ainda.</p>
+      ) : (
+        <div className="locks-grid-container">
+          {locks.map((lock, idx) => (
+            <div key={idx} className="lock-card lock-card-modern">
+              <div className="lock-icon-card">
+                <span role="img" aria-label="cadeado" style={{ fontSize: 40 }}>
+                  {lock.isAdmin ? "🔑" : "👤"}
+                </span>
               </div>
-            ))}
-          </div>
-        )}
+              <div style={{ flex: 1, color: '#3B3B3B' }}>
+                <div><b>Nome:</b> {lock.lockName}</div>
+                <div><b>Função:</b> {lock.isAdmin ? <span className="badge-admin">Admin</span> : <span className="badge-guest">Convidado</span>}</div>
+              </div>
+              <button className="enter-lock-btn" onClick={() => handleNavigate(lock.registrationCode)}>Entrar</button>
+            </div>
+          ))}
+        </div>
+      )}
 
-      <button className="page-button" onClick={handleLogout} style={{ backgroundColor: '#e57373', color: '#fff' }}>Sair</button>
-
+      <button className="page-button" onClick={handleLogout} style={{ backgroundColor: '#e57373', color: '#fff', marginTop: 30 }}>Sair</button>
     </div>
   );
 }

@@ -15,6 +15,8 @@ function UsersPage() {
   const navigate = useNavigate();
 
   const loggedEmail = localStorage.getItem('email');
+  const isAdmin = users.find(u => u.email === loggedEmail)?.isAdmin;
+
 
   useEffect(() => { fetchUsers(); }, []);
 
@@ -29,6 +31,21 @@ function UsersPage() {
     }
     setLoading(false);
   }
+
+  async function handleRemoveUser(email) {
+    if (window.confirm("Tem certeza que deseja excluir este usuário?")) {
+      try {
+        await axios.delete(`http://localhost:3001/users/${email}`, {
+          data: { code: localStorage.getItem('code'), currentUser: loggedEmail }
+        });
+        alert("Usuário removido!");
+        fetchUsers();
+      } catch (e) {
+        alert("Erro ao remover usuário.");
+      }
+    }
+  }
+
 
   function openEdit(user) {
     setEditingUser(user);
@@ -130,7 +147,7 @@ function UsersPage() {
                   marginRight: 12
                 }}
               />
-              <div style={{ flex: 1, color:'#3B3B3B' }}>
+              <div style={{ flex: 1, color: '#3B3B3B' }}>
                 <div>
                   <b>Nome:</b> {user.name}
                 </div>
@@ -138,8 +155,18 @@ function UsersPage() {
                   <b>Email:</b> {user.email}
                 </div>
                 <div>
-                  <b>Função:</b> {user.isAdmin?"Admin":"Convidado"}
+                  <b>Função:</b> {user.isAdmin ? "Admin" : "Convidado"}
                 </div>
+                {isAdmin && !user.isAdmin && (
+                  <button
+                    className="page-button"
+                    style={{ marginTop: 12, padding: "4px 16px", fontSize: 14, backgroundColor: '#e57373', color: '#fff' }}
+                    onClick={() => handleRemoveUser(user.email)}
+                  >
+                    Excluir
+                  </button>
+                )}
+
                 {user.email == loggedEmail && user.name == localStorage.getItem('user') && (
                   <button
                     className="page-button"

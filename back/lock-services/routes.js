@@ -1,6 +1,7 @@
 const express = require('express');
 const { findLocksByEmail, getStatus, setStatus, isLockCodeExists, hasNoAdminForLock, assignAdminToLock, isInviteCodeExists, isEmailRegistered, addNonAdminUser, getRegistrationCodeByInviteCode, getInviteCodeByRegistrationCode, hasAdmin, updateEmail } = require('./controllers');
 const router = express.Router();
+const controller = require('./controllers'); 
 
 router.get('/status', (req, res) => {
   const { code } = req.query;
@@ -19,6 +20,39 @@ router.post('/status', (req, res) => {
 router.post('/locks', (req, res) => {
   const {email} = req.body;
   res.json({ list: findLocksByEmail(email) });
+});
+
+router.post('/remove-user-access', controller.removeUserAccess);
+
+router.delete('/locks/:registrationCode/invitee/:email', (req, res) => {
+  const { registrationCode, email } = req.params;
+  const { requester } = req.body; 
+
+  const lock = lockController.findLockByRegistrationCode
+    ? lockController.findLockByRegistrationCode(registrationCode)
+    : null;
+  if (!lock || lock.adminEmail !== requester) {
+    return res.status(403).json({ error: 'Apenas admin pode remover convidados.' });
+  }
+
+  const removed = lockController.removeInvitedUser(registrationCode, email);
+  if (removed) {
+    res.json({ message: 'Usuário removido com sucesso.' });
+  } else {
+    res.status(404).json({ error: 'Usuário não encontrado para remover.' });
+  }
+});
+
+router.delete('/locks/:registrationCode/self-access', (req, res) => {
+  const { registrationCode } = req.params;
+  const { userEmail } = req.body;
+
+  const removed = lockController.removeOwnAccess(registrationCode, userEmail);
+  if (removed) {
+    res.json({ message: 'Acesso removido com sucesso.' });
+  } else {
+    res.status(404).json({ error: 'Acesso não encontrado.' });
+  }
 });
 
 router.post('/register', (req, res) => {

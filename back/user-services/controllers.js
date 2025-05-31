@@ -80,7 +80,6 @@ async function updateUser(req, res) {
 
     users.updateEmail(email, newEmail);
 
-    //envia para mudar de email na tabela do microserviço lock (3003)
     const resp = await axios.post('http://localhost:3003/update-email',{ email: email, newEmail: newEmail });
 
     return res.json({ message: 'Usuário atualizado com sucesso!', user });
@@ -88,6 +87,34 @@ async function updateUser(req, res) {
 
   users.updateUser(email, user);
   res.json({ message: 'Usuário atualizado com sucesso!', user });
+}
+
+async function deleteUser(req, res) {
+  const { email } = req.params;
+  const requester = req.body.requester; 
+
+  const userToDelete = users.getUser(email);
+  const requestingUser = users.getUser(requester);
+
+  if (!userToDelete) return res.status(404).json({ error: 'Usuário não encontrado' });
+
+  if (!requestingUser) return res.status(403).json({ error: 'Operação não permitida.' });
+  const isSelf = requester === email;
+  const isAdmin = requestingUser.isAdmin; 
+
+  if (!isSelf && !isAdmin) {
+    return res.status(403).json({ error: 'Você não tem permissão para excluir este usuário.' });
+  }
+
+  users.deleteUser(email);
+
+  try {
+    await axios.post('http://localhost:3003/remove-user-access', { email });
+  } catch (e) {
+    console.error('Erro ao remover acessos:', e.message);
+  }
+
+  res.json({ message: 'Usuário removido com sucesso.' });
 }
 
 function login(req, res) {
@@ -120,9 +147,10 @@ function join(req, res) {
 module.exports = {
   getUsers,
   createUser,
+  updateUser,
+  deleteUser,
   lockAction,
   login,
-  updateUser,
   upload,
   register,
   join

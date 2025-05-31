@@ -21,17 +21,33 @@ function HomePage() {
   }, []);
 
   useEffect(() => {
-    async function returnInviteCode(){
-        try {
-          const resp = await axios.get(`http://localhost:3003/invite-code?code=${localStorage.getItem('code')}`);
-          setInviteCode(resp.data.inviteCode);
-        } catch {
-          setInviteCode("[Erro ao buscar código de convite]");
-        }
-        return inviteCode || "[Erro]";
+    async function returnInviteCode() {
+      try {
+        const resp = await axios.get(`http://localhost:3003/invite-code?code=${localStorage.getItem('code')}`);
+        setInviteCode(resp.data.inviteCode);
+      } catch {
+        setInviteCode("[Erro ao buscar código de convite]");
+      }
+      return inviteCode || "[Erro]";
     }
     returnInviteCode();
   }, []);
+
+  async function handleRemoveAccess() {
+    if (window.confirm("Tem certeza que deseja remover seu acesso a esta fechadura?")) {
+      try {
+        await axios.post('http://localhost:3003/remove-user-access', {
+          email: localStorage.getItem('email'),
+          code: localStorage.getItem('code')
+        });
+        alert("Seu acesso foi removido com sucesso.");
+        localStorage.removeItem('code');
+        navigate('/home');
+      } catch (e) {
+        alert("Erro ao remover acesso.");
+      }
+    }
+  }
 
   function goToControl() {
     navigate('/lock-control');
@@ -67,14 +83,21 @@ function HomePage() {
         display: 'flex',
         flexDirection: 'column',
         gap: '20px',
-        maxWidth: '300px',
+        maxWidth: '300px',  
         margin: '0 auto'
       }}>
         <button className="page-button" onClick={goToControl}>Controle da Fechadura</button>
         <button className="page-button" onClick={goToLogs}>Histórico de Logs</button>
         <button className="page-button" onClick={goToUsers}>Usuários</button>
+        <button
+          className="page-button"
+          style={{ backgroundColor: '#b71c1c', color: '#fff' }}
+          onClick={handleRemoveAccess}
+        >
+          DESCONECTAR
+        </button>
         <h2 style={{ color: '#FFF', backgroundImage: 'linear-gradient(to top,rgb(72, 110, 185),rgb(29, 66, 139))', padding: '10px 20px', borderRadius: '8px', fontFamily: 'Arial, sans-serif', fontWeight: 'bold', boxShadow: '0 2px 4px rgba(0,0,0,0.1)', display: 'inline-block' }}>
-          {"Código de convite: "+inviteCode}
+          {"Código de convite: " + inviteCode}
         </h2>
         <button className="page-button" onClick={goToSelect} style={{ backgroundColor: '#e57373', color: '#fff' }}>Voltar</button>
       </div>

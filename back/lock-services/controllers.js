@@ -109,6 +109,36 @@ function assignAdminToLock(registrationCode, email, lockName) {
   }
 }
 
+function removeUserAccess(req, res) {
+  const { email } = req.body;
+  if (!email) return res.status(400).json({ error: 'Email é obrigatório.' });
+
+  registredLocks.forEach(lock => {
+    lock.users = lock.users.filter(u => u !== email);
+    if (lock.admins) lock.admins = lock.admins.filter(a => a !== email);
+  });
+
+  return res.json({ message: 'Acessos removidos.' });
+}
+
+function removeInvitedUser(registrationCode, emailToRemove) {
+  const lock = registredLocks.find(lock => lock.registrationCode === registrationCode);
+  if (!lock) return false;
+  const prevCount = lock.nonAdminUsers.length;
+  lock.nonAdminUsers = lock.nonAdminUsers.filter(user => user.email !== emailToRemove);
+  return lock.nonAdminUsers.length < prevCount;
+}
+
+function removeOwnAccess(registrationCode, userEmail) {
+  const lock = registredLocks.find(lock => lock.registrationCode === registrationCode);
+  if (!lock) return false;
+  const prevCount = lock.nonAdminUsers.length;
+  lock.nonAdminUsers = lock.nonAdminUsers.filter(user => user.email !== userEmail);
+  return lock.nonAdminUsers.length < prevCount;
+}
+
+
+
 function isInviteCodeExists(inviteCode) {
   return registredLocks.some(lock => lock.inviteCode === inviteCode);
 }
@@ -129,6 +159,10 @@ function addNonAdminUser(inviteCode, email) {
   
   lock.nonAdminUsers.push({ email });
   return true;
+}
+
+function findLockByRegistrationCode(registrationCode) {
+  return registredLocks.find(lock => lock.registrationCode === registrationCode);
 }
 
 function getRegistrationCodeByInviteCode(inviteCode) {
@@ -174,5 +208,9 @@ module.exports = {
     getRegistrationCodeByInviteCode,
     getInviteCodeByRegistrationCode,
     hasAdmin,
-    updateEmail
+    updateEmail,
+    removeUserAccess,
+    removeInvitedUser,
+    removeOwnAccess,
+    findLockByRegistrationCode
 };
