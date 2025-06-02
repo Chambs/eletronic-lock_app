@@ -1,74 +1,96 @@
 # Eletronic Lock App
 
 ## Projeto Integrado – ECM252 & ECM516  
-**Instituição:** Instituto Mauá de Tecnologia
-**Semestre:** 1º semestre de 2025
+**Instituto Mauá de Tecnologia - 2025**   
 
 ---
 
-
 ## 👥 Integrantes do grupo
 
-- 21.00476-5 – André Freire Prino 
-- 21.00036-0 - Giuliano Rodrigues Tumoli 
-- 22.00522-6 – Guilherme Thomasi Ronca 
-- 22.00085-2 – João Vitor Marques Ferrenha 
-- 20.00628-4 – Matheus Santos Feitosa 
-- 21.00634-2 - Rafael Maciel Bertani 
+- 21.00476-5 – André Freire Prino  
+- 21.00036-0 - Giuliano Rodrigues Tumoli  
+- 22.00522-6 – Guilherme Thomasi Ronca  
+- 22.00085-2 – João Vitor Marques Ferrenha  
+- 20.00628-4 – Matheus Santos Feitosa  
+- 21.00634-2 - Rafael Maciel Bertani  
 
 ---
 
 ## 🔐 Eletronic Lock App
 
-Uma aplicação voltada para o controle de **fechaduras eletrônicas** via aplicação web.  
-A solução permite a gestão de usuários autorizados, o monitoramento das ações realizadas na fechadura (como entradas/saídas/tentativas de entrada/etc), além do controle remoto do dispositivo.
+Aplicação web para **controle de fechaduras eletrônicas**, com múltiplos usuários, múltiplas fechaduras, controle de acessos, logs detalhados e painéis para admins e convidados.
 
-### ✅ Funcionalidades previstas:
-- Cadastro e gerenciamento de usuários
-- Log de ações (quem entrou, quem saiu, quando, tentativas de entrada, etc)
-- Abertura/fechamento remoto da fechadura pelo app
-- Interface gráfica web
-
----
-
-### 🚀 Funcionalidades Implementadas
-## ✅ Microsserviço: user-service
-- Cadastro de usuários (POST /users)
-- Listagem de usuários (GET /users)
-- Publicação de eventos no barramento ao cadastrar usuários
-
-## ✅ Microsserviço: log-service
-- Registro de ações feitas pelos usuários (POST /logs)
-- Listagem do histórico de ações registradas (GET /logs)
-- Escuta eventos do barramento (LOCK_ACTION) para registrar ações
-
-## ✅ Front-End (React)
-- Tela inicial com opções de login e cadastro
-- Tela de login com autenticação (e armazenamento do usuário logado)
-- Tela de cadastro com registro no user-service
-- Home Page pós-login com opções:
-    - Controle da Fechadura (com botões de ABRIR e FECHAR)
-    - Sair (voltar à tela inicial)
-- Tela de Controle da Fechadura:
-    - Botão ABRIR
-    - Botão FECHAR
-    - Botão Voltar para a página anterior
-    - Lista com histórico das ações feitas (mostrando usuário + ação + data)
-
-## ✅ Barramento de Eventos
-- O Frontend envia as ações do usuário (ABRIR ou FECHAR) para o user-service
-- O user-service publica um evento LOCK_ACTION no barramento de eventos (back/shared-bus/eventBus.js)
-- O log-service escuta esse evento e registra a ação no seu histórico de logs
-- O Frontend pode então buscar a lista de ações diretamente do log-service
+Permite:
+- Gerenciamento de usuários
+- Controle e histórico de ações em fechaduras
+- Múltiplos administradores e convidados por fechadura
+- Cadastro e exclusão de usuários e acessos
+- Sistema moderno de microsserviços (Node.js/Express)
+- **Barramento de eventos** para comunicação entre microsserviços
+- Interface gráfica web (React)
 
 ---
 
-### 🔒 Códigos de Registro e Convite
+## ✅ Funcionalidades Implementadas
 
-Agora o sistema suporta várias fechaduras. Todas as fechaduras que estarão integradas com esse sistema estarão pré-cadastradas nele, possuíndo um código de registro e um código de convite previamente definidos, portanto, para interagir com uma fechadura, é necessário utilizar códigos específicos:
+### 🧩 Microsserviços
 
-- **Código de Registro**: utilizado para **cadastrar uma nova fechadura** e tornar-se o **administrador** dela.
-- **Código de Convite**: utilizado para **participar de uma fechadura já existente** como **usuário comum**.
+#### 1. **user-services**
+- Cadastro, login, edição, exclusão de usuários, com validação de email e imagem de perfil
+- Cadastro de fechaduras (como admin), participação em fechaduras (convidado), listagem de usuários e seus acessos
+- Permite **admin** remover qualquer usuário de uma fechadura, e usuários removerem seus próprios acessos
+- Publica eventos no barramento (ex: registro, remoção, atualização de acesso/usuário)
+
+#### 2. **lock-services**
+- Gerencia o status das fechaduras (aberta/fechada)
+- Mantém registro de quais usuários têm acesso a cada fechadura
+- Processa eventos do barramento para atualizar acessos e status (inclusive após atualização de email)
+- Fornece endpoints para consulta de fechaduras e seus acessos
+- Remove acessos de usuário ao receber evento de exclusão
+
+#### 3. **log-services**
+- Registra todas as ações em fechaduras (abertura, fechamento, login, etc)
+- Lista histórico completo de logs, ordenados do mais recente para o mais antigo
+- Escuta eventos do barramento (`LOCK_ACTION`, `USER_REMOVED`, etc.) para manter histórico sempre atualizado
+
+#### 4. **shared-bus/eventBus**
+- Microsserviço dedicado para o **barramento de eventos**
+- Permite comunicação desacoplada entre microsserviços (ex: publicar/remover acesso, atualização de email, logs)
+- Deve estar rodando sempre, pois integra todos os fluxos do sistema
+
+---
+
+### 🖥️ Front-End (React)
+
+- **Tela inicial**: login/cadastro/seleção de modo (admin/convidado)
+- **Login/Cadastro**: autenticação e registro com validação de email, senha e imagem de perfil
+- **Home Page**: 
+    - Mostra fechaduras cadastradas e status (aberta/fechada)
+    - Botão para controle da fechadura (ABRIR/FECHAR)
+    - Botão para histórico de logs da fechadura
+    - Botão para listar usuários
+    - Opção para remover acesso do próprio usuário à fechadura
+- **Página de Controle**: ABRIR/FECHAR fechadura selecionada, exibe status em tempo real
+- **Página de Logs**: Histórico de ações ordenado (mais recente primeiro), agrupamento responsivo e com scroll
+- **Página de Usuários**: Lista com edição de perfil, upload de imagem, exclusão (admin pode remover usuários)
+- **Confirmação e feedbacks amigáveis** para ações como editar perfil, excluir usuário/acesso, etc.
+
+---
+
+## 🔀 Fluxo do Sistema & Barramento de Eventos
+
+- Frontend envia ações (ex: ABRIR/FECHAR, cadastro, exclusão) para os respectivos microsserviços
+- Microsserviços publicam eventos no barramento (`eventBus.js`)
+- Outros microsserviços escutam esses eventos e atualizam registros (ex: logs, acesso, status)
+- Por exemplo, ao atualizar email, o user-services publica um evento que é escutado por lock-services para atualizar os acessos relacionados àquele usuário.
+
+---
+
+## 🔒 Códigos de Registro e Convite
+
+Sistema suporta múltiplas fechaduras, cada uma com:
+- **Código de Registro** (para admin)
+- **Código de Convite** (para convidados)
 
 #### 🔐 Fechaduras cadastradas para testes
 
