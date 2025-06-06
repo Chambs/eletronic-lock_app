@@ -1,7 +1,7 @@
 const express = require('express');
 const { findLocksByEmail, getStatus, setStatus, isLockCodeExists, hasNoAdminForLock, assignAdminToLock, isInviteCodeExists, isEmailRegistered, addNonAdminUser, getRegistrationCodeByInviteCode, getInviteCodeByRegistrationCode, hasAdmin, updateEmail } = require('./controllers');
 const router = express.Router();
-const controller = require('./controllers'); 
+const controller = require('./controllers');
 
 router.get('/status', (req, res) => {
   const { code } = req.query;
@@ -18,7 +18,7 @@ router.post('/status', (req, res) => {
 });
 
 router.post('/locks', (req, res) => {
-  const {email} = req.body;
+  const { email } = req.body;
   res.json({ list: findLocksByEmail(email) });
 });
 
@@ -26,16 +26,16 @@ router.post('/remove-user-access', controller.removeUserAccess);
 
 router.delete('/locks/:registrationCode/invitee/:email', (req, res) => {
   const { registrationCode, email } = req.params;
-  const { requester } = req.body; 
+  const { requester } = req.body;
 
-  const lock = lockController.findLockByRegistrationCode
-    ? lockController.findLockByRegistrationCode(registrationCode)
+  const lock = controller.findLockByRegistrationCode
+    ? controller.findLockByRegistrationCode(registrationCode)
     : null;
   if (!lock || lock.adminEmail !== requester) {
     return res.status(403).json({ error: 'Apenas admin pode remover convidados.' });
   }
 
-  const removed = lockController.removeInvitedUser(registrationCode, email);
+  const removed = controller.removeInvitedUser(registrationCode, email);
   if (removed) {
     res.json({ message: 'Usuário removido com sucesso.' });
   } else {
@@ -47,7 +47,7 @@ router.delete('/locks/:registrationCode/self-access', (req, res) => {
   const { registrationCode } = req.params;
   const { userEmail } = req.body;
 
-  const removed = lockController.removeOwnAccess(registrationCode, userEmail);
+  const removed = controller.removeOwnAccess(registrationCode, userEmail);
   if (removed) {
     res.json({ message: 'Acesso removido com sucesso.' });
   } else {
@@ -56,49 +56,49 @@ router.delete('/locks/:registrationCode/self-access', (req, res) => {
 });
 
 router.post('/register', (req, res) => {
-  const {code, nickname, admin} = req.body;
+  const { code, nickname, admin } = req.body;
 
-  if ( !isLockCodeExists(code) ) {
+  if (!isLockCodeExists(code)) {
     return res.status(404).json({ error: 'Código de registro inválido.' });
   }
-  else if( !hasNoAdminForLock(code) ) {
+  else if (!hasNoAdminForLock(code)) {
     return res.status(409).json({ error: 'Fechadura já registrada em um email.' });
   }
-  else{
+  else {
     assignAdminToLock(code, admin, nickname);
-    return res.status(200).json({ message: 'Fechadura registrada com sucesso.'});
+    return res.status(200).json({ message: 'Fechadura registrada com sucesso.' });
   }
-  
+
 });
 
 router.post('/join', (req, res) => {
-  const {invitationCode, email} = req.body;
+  const { invitationCode, email } = req.body;
 
-  if ( !isInviteCodeExists(invitationCode) ) {
+  if (!isInviteCodeExists(invitationCode)) {
     return res.status(404).json({ error: 'Código de convite inválido.' });
   }
-  else if( isEmailRegistered(invitationCode, email) ) {
+  else if (isEmailRegistered(invitationCode, email)) {
     return res.status(409).json({ error: 'Você já está registrado nessa fechadura.' });
   }
-  else if( !hasAdmin(invitationCode) ){
+  else if (!hasAdmin(invitationCode)) {
     return res.status(423).json({ error: 'Esta fechadura ainda não está disponível.' });
   }
-  else{
+  else {
     addNonAdminUser(invitationCode, email);
-    return res.status(200).json({ message: 'Agora você é um usuário dessa fechadura.', registrationCode: getRegistrationCodeByInviteCode(invitationCode)});
+    return res.status(200).json({ message: 'Agora você é um usuário dessa fechadura.', registrationCode: getRegistrationCodeByInviteCode(invitationCode) });
   }
-  
+
 });
 
 router.get('/invite-code', (req, res) => {
-  const {code} = req.query;
-  return res.json({inviteCode: getInviteCodeByRegistrationCode(code)});
+  const { code } = req.query;
+  return res.json({ inviteCode: getInviteCodeByRegistrationCode(code) });
 });
 
 router.post('/update-email', (req, res) => {
-  const {email, newEmail} = req.body;
+  const { email, newEmail } = req.body;
   updateEmail(email, newEmail);
-  res.status(200).json({ message: 'Email atualizado.'});
+  res.status(200).json({ message: 'Email atualizado.' });
 });
 
 module.exports = router;

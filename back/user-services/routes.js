@@ -10,5 +10,6 @@ router.put('/:email', controller.upload.single('profileImage'), controller.updat
 router.delete('/:email', controller.deleteUser);
 router.post('/register', controller.register);
 router.post('/join', controller.join);
+router.post('/remove-code', controller.removeCode);
 
 module.exports = router;

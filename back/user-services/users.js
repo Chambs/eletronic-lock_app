@@ -83,6 +83,16 @@ function addNonAdminCodeToUser(email, registrationCode) {
   return true;
 }
 
+function removeCodeFromUser(email, registrationCode) {
+  const user = users.find(u => u.email === email);
+  if (!user) return false;
+
+  user.admin = user.admin.filter(code => code !== registrationCode);
+  user.nonAdmin = user.nonAdmin.filter(code => code !== registrationCode);
+
+  return true;
+}
+
 module.exports = {
   getAll,
   findByEmail,
@@ -94,5 +104,6 @@ module.exports = {
   updateEmail,
   findUsersByCode,
   addAdminCodeToUser,
-  addNonAdminCodeToUser
+  addNonAdminCodeToUser,
+  removeCodeFromUser
 };

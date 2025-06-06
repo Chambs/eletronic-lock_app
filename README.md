@@ -10,11 +10,11 @@
 ## 👥 Integrantes do grupo
 
 - 21.00476-5 – André Freire Prino 
-- 21.00036-0 - Giuliano Rodrigues Tumoli 
+- 21.00036-0 – Giuliano Rodrigues Tumoli 
 - 22.00522-6 – Guilherme Thomasi Ronca 
 - 22.00085-2 – João Vitor Marques Ferrenha 
 - 20.00628-4 – Matheus Santos Feitosa 
-- 21.00634-2 - Rafael Maciel Bertani 
+- 21.00634-2 – Rafael Maciel Bertani 
 
 ---
 

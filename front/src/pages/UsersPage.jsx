@@ -15,15 +15,15 @@ function UsersPage() {
   const navigate = useNavigate();
 
   const loggedEmail = localStorage.getItem('email');
+  const code = localStorage.getItem('code');
   const isAdmin = users.find(u => u.email === loggedEmail)?.isAdmin;
-
 
   useEffect(() => { fetchUsers(); }, []);
 
   async function fetchUsers() {
     setLoading(true);
     try {
-      const resp = await axios.get(`http://localhost:3001/users?code=${localStorage.getItem('code')}`);
+      const resp = await axios.get(`http://localhost:3001/users?code=${code}`);
       setUsers(resp.data);
     } catch {
       setUsers([]);
@@ -32,11 +32,13 @@ function UsersPage() {
     setLoading(false);
   }
 
+  // Exclusão apenas por admin
   async function handleRemoveUser(email) {
-    if (window.confirm("Tem certeza que deseja excluir este usuário?")) {
+    if (window.confirm("Tem certeza que deseja excluir este usuário? Isso irá remover todos os acessos dele.")) {
       try {
+        // Exclusão no user-services (remove usuário + acessos)
         await axios.delete(`http://localhost:3001/users/${email}`, {
-          data: { code: localStorage.getItem('code'), currentUser: loggedEmail }
+          data: { requester: loggedEmail }
         });
         alert("Usuário removido!");
         fetchUsers();
@@ -45,7 +47,6 @@ function UsersPage() {
       }
     }
   }
-
 
   function openEdit(user) {
     setEditingUser(user);
@@ -126,7 +127,7 @@ function UsersPage() {
   return (
     <div className="page">
       <h1>Usuários Cadastrados</h1>
-      <button className="page-button" style={{ marginBottom: 24 }} onClick={() => navigate(`/home/${localStorage.getItem('code')}`)}>Voltar</button>
+      <button className="page-button" style={{ marginBottom: 24 }} onClick={() => navigate(`/home/${code}`)}>Voltar</button>
       {loading ? (
         <p>Carregando...</p>
       ) : users.length === 0 ? (
@@ -167,7 +168,7 @@ function UsersPage() {
                   </button>
                 )}
 
-                {user.email == loggedEmail && user.name == localStorage.getItem('user') && (
+                {user.email === loggedEmail && user.name === localStorage.getItem('user') && (
                   <button
                     className="page-button"
                     style={{ marginTop: 12, padding: "4px 16px", fontSize: 14 }}

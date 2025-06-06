@@ -80,7 +80,7 @@ async function updateUser(req, res) {
 
     users.updateEmail(email, newEmail);
 
-    const resp = await axios.post('http://localhost:3003/update-email',{ email: email, newEmail: newEmail });
+    const resp = await axios.post('http://localhost:3003/update-email', { email: email, newEmail: newEmail });
 
     return res.json({ message: 'Usuário atualizado com sucesso!', user });
   }
@@ -91,7 +91,7 @@ async function updateUser(req, res) {
 
 async function deleteUser(req, res) {
   const { email } = req.params;
-  const requester = req.body.requester; 
+  const requester = req.body.requester;
 
   const userToDelete = users.getUser(email);
   const requestingUser = users.getUser(requester);
@@ -100,7 +100,7 @@ async function deleteUser(req, res) {
 
   if (!requestingUser) return res.status(403).json({ error: 'Operação não permitida.' });
   const isSelf = requester === email;
-  const isAdmin = requestingUser.isAdmin; 
+  const isAdmin = requestingUser.admin && requestingUser.admin.length > 0;
 
   if (!isSelf && !isAdmin) {
     return res.status(403).json({ error: 'Você não tem permissão para excluir este usuário.' });
@@ -132,16 +132,25 @@ function login(req, res) {
   res.json({ message: 'Login successful', name: user.name, email: user.email, profileImage: user.profileImage });
 }
 
-function register(req, res) { 
+function register(req, res) {
   const { email, code } = req.body;
   addAdminCodeToUser(email, code);
   res.json({ message: 'User registred' });
 }
 
-function join(req, res) { 
+function join(req, res) {
   const { email, code } = req.body;
   addNonAdminCodeToUser(email, code);
   res.json({ message: 'Join successful' });
+}
+
+function removeCode(req, res) {
+  const { email, code } = req.body;
+  if (!email || !code) {
+    return res.status(400).json({ error: 'Email e código são obrigatórios.' });
+  }
+  users.removeCodeFromUser(email, code);
+  res.json({ message: 'Código removido.' });
 }
 
 module.exports = {
@@ -153,5 +162,6 @@ module.exports = {
   login,
   upload,
   register,
-  join
+  join,
+  removeCode
 };
