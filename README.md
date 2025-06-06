@@ -104,7 +104,7 @@ Agora o sistema suporta várias fechaduras. Todas as fechaduras que estarão int
     - node server.js (terminal exclusivo)
 - lock-services:
     - cd back/lock-services
-    - npm install express cors 
+    - npm install express cors axios
     - node server.js (terminal exclusivo)
 - shared-bus:
     - cd back/shared-bus
