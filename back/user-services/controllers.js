@@ -80,14 +80,41 @@ async function updateUser(req, res) {
 
     users.updateEmail(email, newEmail);
 
-    //envia para mudar de email na tabela do microserviço lock (3003)
-    const resp = await axios.post('http://localhost:3003/update-email',{ email: email, newEmail: newEmail });
+    const resp = await axios.post('http://localhost:3003/update-email', { email: email, newEmail: newEmail });
 
     return res.json({ message: 'Usuário atualizado com sucesso!', user });
   }
 
   users.updateUser(email, user);
   res.json({ message: 'Usuário atualizado com sucesso!', user });
+}
+
+async function deleteUser(req, res) {
+  const { email } = req.params;
+  const requester = req.body.requester;
+
+  const userToDelete = users.getUser(email);
+  const requestingUser = users.getUser(requester);
+
+  if (!userToDelete) return res.status(404).json({ error: 'Usuário não encontrado' });
+
+  if (!requestingUser) return res.status(403).json({ error: 'Operação não permitida.' });
+  const isSelf = requester === email;
+  const isAdmin = requestingUser.admin && requestingUser.admin.length > 0;
+
+  if (!isSelf && !isAdmin) {
+    return res.status(403).json({ error: 'Você não tem permissão para excluir este usuário.' });
+  }
+
+  users.deleteUser(email);
+
+  try {
+    await axios.post('http://localhost:3003/remove-user-access', { email });
+  } catch (e) {
+    console.error('Erro ao remover acessos:', e.message);
+  }
+
+  res.json({ message: 'Usuário removido com sucesso.' });
 }
 
 function login(req, res) {
@@ -105,25 +132,36 @@ function login(req, res) {
   res.json({ message: 'Login successful', name: user.name, email: user.email, profileImage: user.profileImage });
 }
 
-function register(req, res) { 
+function register(req, res) {
   const { email, code } = req.body;
   addAdminCodeToUser(email, code);
   res.json({ message: 'User registred' });
 }
 
-function join(req, res) { 
+function join(req, res) {
   const { email, code } = req.body;
   addNonAdminCodeToUser(email, code);
   res.json({ message: 'Join successful' });
 }
 
+function removeCode(req, res) {
+  const { email, code } = req.body;
+  if (!email || !code) {
+    return res.status(400).json({ error: 'Email e código são obrigatórios.' });
+  }
+  users.removeCodeFromUser(email, code);
+  res.json({ message: 'Código removido.' });
+}
+
 module.exports = {
   getUsers,
   createUser,
+  updateUser,
+  deleteUser,
   lockAction,
   login,
-  updateUser,
   upload,
   register,
-  join
+  join,
+  removeCode
 };

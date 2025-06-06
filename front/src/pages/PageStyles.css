@@ -168,14 +168,14 @@
   }
 
   .locks-grid-container {
-    display: grid; /* Ativa o Grid Layout */
-    grid-template-columns: repeat(2, 1fr); /* Cria 2 colunas de tamanho igual */
-    gap: 16px; /* Espaçamento entre os itens */
-    padding: 16px; /* Espaço interno do contêiner */
+    display: grid; 
+    grid-template-columns: repeat(2, 1fr); 
+    gap: 16px; 
+    padding: 16px;
   }
 
   .lock-card {
-    background-color: #fff; /* Exemplo de fundo para os cartões */
+    background-color: #fff; 
     padding: 16px;
     border-radius: 8px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
@@ -236,4 +236,104 @@
     margin-top: 4px;
   }
   
-  
+.button-home{
+  height: 10vh;
+  font-size: '16px';
+  color: white;
+  border: none;
+  border-radius: 7px;
+  cursor: pointer;
+  padding: 10px;
+}
+
+.lockselect-actions {
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+  margin-bottom: 30px;
+  flex-wrap: wrap;
+}
+.lockselect-action {
+  display: flex;
+  align-items: center;
+  font-size: 1.05rem;
+  font-weight: bold;
+  padding: 12px 24px;
+  transition: transform 0.16s;
+  box-shadow: 0 2px 12px rgba(68, 130, 255, 0.08);
+}
+.lockselect-action:hover {
+  transform: scale(1.04);
+  background-color: #000000 !important;
+  color: #fff !important;
+}
+
+.lock-card-modern {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  padding: 20px 22px;
+  border-radius: 12px;
+  background: #f8fbfd;
+  box-shadow: 0 2px 14px 0 #97c2e824;
+  transition: box-shadow 0.18s, transform 0.18s;
+  margin-bottom: 6px;
+  position: relative;
+}
+.lock-card-modern:hover {
+  box-shadow: 0 8px 24px #97c2e864;
+  transform: translateY(-2px) scale(1.015);
+}
+.lock-icon-card {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #b7e8ff 0%, #24c76d 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 10px;
+  font-size: 30px;
+  border: 2px solid #4482ff15;
+}
+.lock-code {
+  font-family: "Fira Mono", monospace, monospace;
+  background: #e3f2fd;
+  border-radius: 6px;
+  padding: 0 6px;
+  font-size: 1rem;
+  letter-spacing: 1.1px;
+}
+.badge-admin,
+.badge-guest {
+  font-size: 0.97rem;
+  border-radius: 7px;
+  padding: 3px 11px;
+  font-weight: 600;
+  margin-left: 2px;
+  letter-spacing: 1.1px;
+}
+.badge-admin {
+  background: #d1f5e5;
+  color: #219150;
+}
+.badge-guest {
+  background: #e8f2ff;
+  color: #2963d6;
+}
+.enter-lock-btn {
+  background: #4482FF;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 1.07rem;
+  font-weight: 600;
+  padding: 10px 19px;
+  cursor: pointer;
+  transition: background 0.21s, color 0.21s;
+}
+.enter-lock-btn:hover {
+  background: #113e8b;
+  color: #fff;
+}
+

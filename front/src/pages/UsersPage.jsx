@@ -15,19 +15,35 @@ function UsersPage() {
   const navigate = useNavigate();
 
   const loggedEmail = localStorage.getItem('email');
+  const code = localStorage.getItem('code');
+  const isAdmin = users.find(u => u.email === loggedEmail)?.isAdmin;
 
   useEffect(() => { fetchUsers(); }, []);
 
   async function fetchUsers() {
     setLoading(true);
     try {
-      const resp = await axios.get(`http://localhost:3001/users?code=${localStorage.getItem('code')}`);
+      const resp = await axios.get(`http://localhost:3001/users?code=${code}`);
       setUsers(resp.data);
     } catch {
       setUsers([]);
       alert('Erro ao buscar usuários.');
     }
     setLoading(false);
+  }
+
+  async function handleRemoveUser(email) {
+    if (window.confirm("Tem certeza que deseja excluir este usuário?")) {
+      try {
+        await axios.delete(
+          `http://localhost:3003/locks/${localStorage.getItem('code')}/invitee/${email}?requester=${loggedEmail}`
+        );
+        alert("Usuário removido!");
+        fetchUsers();
+      } catch (e) {
+        alert("Erro ao remover usuário.");
+      }
+    }
   }
 
   function openEdit(user) {
@@ -109,7 +125,7 @@ function UsersPage() {
   return (
     <div className="page">
       <h1>Usuários Cadastrados</h1>
-      <button className="page-button" style={{ marginBottom: 24 }} onClick={() => navigate(`/home/${localStorage.getItem('code')}`)}>Voltar</button>
+      <button className="page-button" style={{ marginBottom: 24 }} onClick={() => navigate(`/home/${code}`)}>Voltar</button>
       {loading ? (
         <p>Carregando...</p>
       ) : users.length === 0 ? (
@@ -130,7 +146,7 @@ function UsersPage() {
                   marginRight: 12
                 }}
               />
-              <div style={{ flex: 1, color:'#3B3B3B' }}>
+              <div style={{ flex: 1, color: '#3B3B3B' }}>
                 <div>
                   <b>Nome:</b> {user.name}
                 </div>
@@ -138,9 +154,19 @@ function UsersPage() {
                   <b>Email:</b> {user.email}
                 </div>
                 <div>
-                  <b>Função:</b> {user.isAdmin?"Admin":"Convidado"}
+                  <b>Função:</b> {user.isAdmin ? "Admin" : "Convidado"}
                 </div>
-                {user.email == loggedEmail && user.name == localStorage.getItem('user') && (
+                {isAdmin && !user.isAdmin && (
+                  <button
+                    className="page-button"
+                    style={{ marginTop: 12, padding: "4px 16px", fontSize: 14, backgroundColor: '#e57373', color: '#fff' }}
+                    onClick={() => handleRemoveUser(user.email)}
+                  >
+                    Excluir
+                  </button>
+                )}
+
+                {user.email === loggedEmail && user.name === localStorage.getItem('user') && (
                   <button
                     className="page-button"
                     style={{ marginTop: 12, padding: "4px 16px", fontSize: 14 }}

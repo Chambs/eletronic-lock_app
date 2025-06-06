@@ -27,9 +27,17 @@ function getLogsByCode(code) {
   return register ? register.logs : [];
 }
 
+function resetLogsByCode(code) {
+  const idx = logList.findIndex(r => r.code === code);
+  if (idx !== -1) {
+    logList.splice(idx, 1);
+  }
+}
+
 module.exports = {
   addLog,
   getAll,
   addOrCreateLog,
-  getLogsByCode
+  getLogsByCode,
+  resetLogsByCode
 };
