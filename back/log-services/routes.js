@@ -28,4 +28,13 @@ router.post('/join', (req, res) => {
   res.status(201).json({ message: 'Log registrado com sucesso.' });
 });
 
+router.post('/reset', (req, res) => {
+  const { code } = req.body;
+  if (!code) {
+    return res.status(400).json({ error: 'Código é obrigatório.' });
+  }
+  logs.resetLogsByCode(code);
+  res.json({ message: 'Logs resetados.' });
+});
+
 module.exports = router;
