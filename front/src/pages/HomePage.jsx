@@ -33,21 +33,48 @@ function HomePage() {
     returnInviteCode();
   }, []);
 
+
+const [users, setUsers] = useState([]);
+const loggedEmail = localStorage.getItem('email');
+const code = localStorage.getItem('code');
+const isAdmin = users.find(u => u.email === loggedEmail)?.isAdmin;
+
+useEffect(() => {
+  async function fetchUsers() {
+    try {
+      const resp = await axios.get(`http://localhost:3001/users?code=${code}`);
+      setUsers(resp.data);
+    } catch {
+      setUsers([]);
+    }
+  }
+  fetchUsers();
+}, [code]);
+
   async function handleRemoveAccess() {
-    if (window.confirm("Tem certeza que deseja remover seu acesso a esta fechadura?")) {
+    const confirmMessage = isAdmin
+      ? "Você é o administrador. Remover seu acesso desconectará todos os usuários e apagará os logs. Deseja continuar?"
+      : "Tem certeza que deseja remover seu acesso a esta fechadura?";
+
+    if (window.confirm(confirmMessage)) {
       try {
         await axios.post('http://localhost:3003/remove-user-access', {
           email: localStorage.getItem('email'),
           code: localStorage.getItem('code')
         });
-        alert("Seu acesso foi removido com sucesso.");
+
+
+        alert("Acesso removido com sucesso.");
         localStorage.removeItem('code');
         navigate('/home');
       } catch (e) {
         alert("Erro ao remover acesso.");
+        console.error(e);
       }
     }
   }
+
+
 
   function goToControl() {
     navigate('/lock-control');

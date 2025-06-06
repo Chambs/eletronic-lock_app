@@ -111,37 +111,53 @@ function assignAdminToLock(registrationCode, email, lockName) {
   }
 }
 
-function removeUserAccess(req, res) {
+async function removeUserAccess(req, res) {
   const { email, code } = req.body;
-  if (!email) return res.status(400).json({ error: 'Email é obrigatório.' });
+  if (!email || !code) {
+    return res.status(400).json({ error: 'Email e código são obrigatórios.' });
+  }
 
-  const affectedCodes = [];
-  const removeFromLock = (lock) => {
-    if (lock.adminEmail === email) {
-      lock.adminEmail = '';
-      affectedCodes.push(lock.registrationCode);
+  const lock = registredLocks.find(l => l.registrationCode === code);
+  if (!lock) {
+    return res.status(404).json({ error: 'Fechadura não encontrada.' });
+  }
+
+  const isAdmin = lock.adminEmail === email;
+
+  if (isAdmin) {
+    
+    lock.adminEmail = '';
+    lock.nonAdminUsers = [];
+
+    try {
+      await axios.post('http://localhost:3001/users/remove-code', { email, code }).catch(() => {});
+      await axios.post('http://localhost:3002/logs/reset', { code }).catch(() => {});
+      await axios.post('http://localhost:3004/join', {
+        type: "ADMIN_REMOVED",
+        data: { lockCode: code }
+      });
+    } catch (err) {
+      console.error("Erro ao executar ações de remoção de admin:", err.message);
+      return res.status(500).json({ error: 'Erro ao remover admin.' });
     }
-    lock.nonAdminUsers = lock.nonAdminUsers.filter(user => user.email !== email);
-  };
 
-  if (code) {
-    const lock = registredLocks.find(l => l.registrationCode === code);
-    if (lock) removeFromLock(lock);
+    return res.json({ message: 'Admin e todos os usuários foram desconectados.' });
+
   } else {
-    registredLocks.forEach(removeFromLock);
+    
+    const originalLength = lock.nonAdminUsers.length;
+    lock.nonAdminUsers = lock.nonAdminUsers.filter(user => user.email !== email);
+
+    if (lock.nonAdminUsers.length === originalLength) {
+      return res.status(403).json({ error: 'Usuário não encontrado nesta fechadura.' });
+    }
+
+    
+    await axios.post('http://localhost:3001/users/remove-code', { email, code }).catch(() => {});
+    return res.json({ message: 'Acesso de usuário removido.' });
   }
-
-  if (code) {
-    axios.post('http://localhost:3001/users/remove-code', { email, code })
-      .catch(() => {});
-  }
-
-  affectedCodes.forEach(c => {
-    axios.post('http://localhost:3002/logs/reset', { code: c }).catch(() => {});
-  });
-
-  return res.json({ message: 'Acessos removidos.' });
 }
+
 
 function removeInvitedUser(registrationCode, emailToRemove) {
   const lock = registredLocks.find(lock => lock.registrationCode === registrationCode);
@@ -224,7 +240,6 @@ function updateEmail(oldEmail, newEmail) {
     });
   });
 }
-
 
 module.exports = {
   findLocksByEmail,

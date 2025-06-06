@@ -72,7 +72,28 @@ router.post('/register', (req, res) => {
 });
 
 router.post('/join', (req, res) => {
-  const { invitationCode, email } = req.body;
+
+  const { type, data, invitationCode, email } = req.body;
+
+ 
+  if (type === 'ADMIN_REMOVED') {
+    const { lockCode } = data;
+    const lock = controller.findLockByRegistrationCode(lockCode);
+
+    if (lock) {
+      
+      lock.nonAdminUsers = [];
+
+      
+      lock.adminEmail = '';
+
+      console.log(`ADMIN_REMOVED: Todos os usuários foram desconectados da fechadura ${lockCode}.`);
+      return res.status(200).json({ message: 'Fechadura resetada.' });
+    } else {
+      return res.status(404).json({ error: 'Fechadura não encontrada.' });
+    }
+  }
+
 
   if (!isInviteCodeExists(invitationCode)) {
     return res.status(404).json({ error: 'Código de convite inválido.' });
@@ -87,7 +108,6 @@ router.post('/join', (req, res) => {
     addNonAdminUser(invitationCode, email);
     return res.status(200).json({ message: 'Agora você é um usuário dessa fechadura.', registrationCode: getRegistrationCodeByInviteCode(invitationCode) });
   }
-
 });
 
 router.get('/invite-code', (req, res) => {
