@@ -17,7 +17,7 @@ function getUser(email) {
 
 function addUser({ name, email, password, profileImage = null }) {
   if (emailExists(email)) return null;
-  const newUser = { name:name, email:email, password:password, profileImage:profileImage, admin:[], nonAdmin:[] };
+  const newUser = { name: name, email: email, password: password, profileImage: profileImage, admin: [], nonAdmin: [] };
   users.push(newUser);
   return newUser;
 }

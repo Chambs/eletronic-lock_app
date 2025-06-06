@@ -26,7 +26,7 @@ router.post('/remove-user-access', controller.removeUserAccess);
 
 router.delete('/locks/:registrationCode/invitee/:email', (req, res) => {
   const { registrationCode, email } = req.params;
-  const { requester } = req.body;
+  const requester = (req.body && req.body.requester) || req.query.requester;
 
   const lock = controller.findLockByRegistrationCode
     ? controller.findLockByRegistrationCode(registrationCode)
@@ -45,7 +45,7 @@ router.delete('/locks/:registrationCode/invitee/:email', (req, res) => {
 
 router.delete('/locks/:registrationCode/self-access', (req, res) => {
   const { registrationCode } = req.params;
-  const { userEmail } = req.body;
+  const userEmail = (req.body && req.body.userEmail) || req.query.userEmail;
 
   const removed = controller.removeOwnAccess(registrationCode, userEmail);
   if (removed) {

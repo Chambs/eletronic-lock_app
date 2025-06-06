@@ -32,14 +32,12 @@ function UsersPage() {
     setLoading(false);
   }
 
-  // Exclusão apenas por admin
   async function handleRemoveUser(email) {
-    if (window.confirm("Tem certeza que deseja excluir este usuário? Isso irá remover todos os acessos dele.")) {
+    if (window.confirm("Tem certeza que deseja excluir este usuário?")) {
       try {
-        // Exclusão no user-services (remove usuário + acessos)
-        await axios.delete(`http://localhost:3001/users/${email}`, {
-          data: { requester: loggedEmail }
-        });
+        await axios.delete(
+          `http://localhost:3003/locks/${localStorage.getItem('code')}/invitee/${email}?requester=${loggedEmail}`
+        );
         alert("Usuário removido!");
         fetchUsers();
       } catch (e) {

@@ -115,9 +115,11 @@ function removeUserAccess(req, res) {
   const { email, code } = req.body;
   if (!email) return res.status(400).json({ error: 'Email é obrigatório.' });
 
+  const affectedCodes = [];
   const removeFromLock = (lock) => {
     if (lock.adminEmail === email) {
       lock.adminEmail = '';
+      affectedCodes.push(lock.registrationCode);
     }
     lock.nonAdminUsers = lock.nonAdminUsers.filter(user => user.email !== email);
   };
@@ -131,8 +133,12 @@ function removeUserAccess(req, res) {
 
   if (code) {
     axios.post('http://localhost:3001/users/remove-code', { email, code })
-      .catch(() => { });
+      .catch(() => {});
   }
+
+  affectedCodes.forEach(c => {
+    axios.post('http://localhost:3002/logs/reset', { code: c }).catch(() => {});
+  });
 
   return res.json({ message: 'Acessos removidos.' });
 }
@@ -142,18 +148,27 @@ function removeInvitedUser(registrationCode, emailToRemove) {
   if (!lock) return false;
   const prevCount = lock.nonAdminUsers.length;
   lock.nonAdminUsers = lock.nonAdminUsers.filter(user => user.email !== emailToRemove);
-  return lock.nonAdminUsers.length < prevCount;
+  if (lock.nonAdminUsers.length < prevCount) {
+    axios.post('http://localhost:3001/users/remove-code', { email: emailToRemove, code: lock.registrationCode })
+      .catch(() => {});
+    return true;
+  }
+  return false;
 }
+
 
 function removeOwnAccess(registrationCode, userEmail) {
   const lock = registredLocks.find(lock => lock.registrationCode === registrationCode);
   if (!lock) return false;
   const prevCount = lock.nonAdminUsers.length;
   lock.nonAdminUsers = lock.nonAdminUsers.filter(user => user.email !== userEmail);
-  return lock.nonAdminUsers.length < prevCount;
+  if (lock.nonAdminUsers.length < prevCount) {
+    axios.post('http://localhost:3001/users/remove-code', { email: userEmail, code: registrationCode })
+      .catch(() => {});
+    return true;
+  }
+  return false;
 }
-
-
 
 function isInviteCodeExists(inviteCode) {
   return registredLocks.some(lock => lock.inviteCode === inviteCode);
