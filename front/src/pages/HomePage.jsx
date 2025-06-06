@@ -63,6 +63,7 @@ useEffect(() => {
           code: localStorage.getItem('code')
         });
 
+
         alert("Acesso removido com sucesso.");
         localStorage.removeItem('code');
         navigate('/home');
@@ -109,7 +110,7 @@ useEffect(() => {
         display: 'flex',
         flexDirection: 'column',
         gap: '20px',
-        maxWidth: '300px',
+        maxWidth: '300px',  
         margin: '0 auto'
       }}>
         <button className="page-button" onClick={goToControl}>Controle da Fechadura</button>

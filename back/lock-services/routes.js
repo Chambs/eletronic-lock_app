@@ -72,6 +72,7 @@ router.post('/register', (req, res) => {
 });
 
 router.post('/join', (req, res) => {
+
   const { type, data, invitationCode, email } = req.body;
 
  

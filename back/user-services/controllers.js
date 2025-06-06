@@ -163,5 +163,5 @@ module.exports = {
   upload,
   register,
   join,
-  removeCode,
+  removeCode
 };
