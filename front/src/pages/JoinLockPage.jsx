@@ -24,7 +24,6 @@ function JoinLockPage() {
           timestamp: new Date()
         });
       }catch(error){
-        console.log("oi");
         console.log(error);
       }
 
