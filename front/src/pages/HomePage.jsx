@@ -94,7 +94,6 @@ useEffect(() => {
 
   return (
     <div className="page">
-      <h1>Eletronic Lock App</h1>
       <div style={{
         marginBottom: '30px',
         fontWeight: 'bold',
