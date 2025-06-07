@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import './PageStyles.css';
 
+
 function HomePage() {
   const [lockStatus, setLockStatus] = useState('Fechada');
   const [inviteCode, setInviteCode] = useState('');
@@ -66,8 +67,7 @@ function HomePage() {
   }
 
   return (
-    <div className="page">
-      <h1>Eletronic Lock App</h1>
+    <div className="home-page">
       <div style={{
         marginBottom: '30px',
         fontWeight: 'bold',

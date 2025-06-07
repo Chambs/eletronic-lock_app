@@ -1,17 +1,37 @@
-.page {
-    width: 100vw; 
-    height: 100vh; 
+  .page {
+    position: relative; /* necessário para o ::before posicionar corretamente */
+    width: 100vw;
+    min-height: 100vh;
     display: flex;
     flex-direction: column;
-    align-items: center; 
-    justify-content: center; 
-    /*background-color: #f0f2f5;*/
+    align-items: center;
+    justify-content: center;
     background: linear-gradient(to top, #D5EDFF, #004B7A);
     text-align: center;
     padding: 20px;
-    box-sizing: border-box; 
+    box-sizing: border-box;
+    overflow: hidden; /* importante para evitar overflow do ::before */
   }
-  
+
+  .home-page {
+    position: relative;
+    width: 100vw;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: 
+      linear-gradient(rgba(255, 255, 255, 0.6), rgba(255, 255, 255, 0.6)),
+      url('../assets/lock-icon.png') no-repeat center top 5px,
+      linear-gradient(to top, #D5EDFF, #004B7A);
+    background-size: 100% 100%, 200px auto, 100% 100%;
+    text-align: center;
+    padding: 20px;
+    box-sizing: border-box;
+    overflow: hidden;
+}
+
   .page h1 {
     font-size: 3rem;
     margin-bottom: 20px;

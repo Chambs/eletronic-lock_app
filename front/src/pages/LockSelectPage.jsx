@@ -44,7 +44,7 @@ function LockSelectPage() {
 
   return (
     <div className="page">
-      <h1>Eletronic Lock App</h1>
+      
       
       <div className="lockselect-actions">
         <button className="button-home lockselect-action"
