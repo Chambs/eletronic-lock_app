@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: lock-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: lock-service
+  template:
+    metadata:
+      labels:
+        app: lock-service
+    spec:
+      containers:
+        - name: lock-service
+          image: lock-service:latest
+          ports:
+            - containerPort: 3003
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: lock-service
+spec:
+  selector:
+    app: lock-service
+  ports:
+    - port: 3003
+      targetPort: 3003
