@@ -7,7 +7,7 @@ function HomePage() {
     <div className="page">
       <img src={lockIcon} alt="Lock Icon" className="lock-icon" />
       <h1>Eletronic Lock App</h1>
-      <p>Controle sua fechadura eletrônica de forma prática e segura!</p>
+      <p>Controle sua fechadura TrustLock de forma prática e segura!</p>
       <Link to="/login" className="page-button">
         Sign in
       </Link>
