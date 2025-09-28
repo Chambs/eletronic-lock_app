@@ -1,0 +1,23 @@
+version: '3.8'
+
+services:
+  # Front Mobile Service
+  front-mobile:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3004:3004"
+    environment:
+      - NODE_ENV=production
+      - PORT=3004
+    volumes:
+      - .:/app
+      - /app/node_modules
+    restart: unless-stopped
+    networks:
+      - mobile-network
+
+networks:
+  mobile-network:
+    driver: bridge
