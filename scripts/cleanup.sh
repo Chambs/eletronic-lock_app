@@ -1,35 +1,60 @@
-# scripts/cleanup.sh
 #!/bin/bash
 
 set -euo pipefail
 
-NS=electronic-lock-app
+echo "🧹 CLEANING EVERYTHING - Electronic Lock App"
+echo "============================================="
 
-kubectl rollout restart deployment/user-services -n electronic-lock-app
-kubectl rollout restart deployment/log-service -n electronic-lock-app
-kubectl rollout restart deployment/lock-service -n electronic-lock-app
-kubectl rollout restart deployment/event-bus -n electronic-lock-app
-kubectl rollout restart deployment/frontend -n electronic-lock-app
+# 1. Kubernetes cleanup
+echo "📦 Cleaning Kubernetes resources..."
+if kubectl get namespace electronic-lock-app >/dev/null 2>&1; then
+    kubectl delete namespace electronic-lock-app
+    echo "✅ Kubernetes namespace deleted"
+else
+    echo "ℹ️  Kubernetes namespace not found"
+fi
 
-echo "Deleting Kubernetes resources from namespace: $NS"
+# 2. Stop and remove containers
+echo "🐳 Cleaning Docker containers..."
+if [ $(docker ps -aq | wc -l) -gt 0 ]; then
+    docker stop $(docker ps -aq) 2>/dev/null || true
+    docker rm $(docker ps -aq) 2>/dev/null || true
+    echo "✅ Docker containers cleaned"
+else
+    echo "ℹ️  No Docker containers to clean"
+fi
 
-# Ingress
-kubectl delete -f ../k8s/ingress.yaml --ignore-not-found
+# 3. Remove project images
+echo "🖼️  Cleaning Docker images..."
+PROJECT_IMAGES=(
+    "electronic-lock-app/user-service:latest"
+    "electronic-lock-app/log-service:latest"
+    "electronic-lock-app/lock-service:latest"
+    "electronic-lock-app/event-bus:latest"
+    "electronic-lock-app/frontend:latest"
+)
 
-# Services
-kubectl delete -f ../k8s/frontend-service.yaml --ignore-not-found
-kubectl delete -f ../k8s/event-bus-service.yaml --ignore-not-found
-kubectl delete -f ../k8s/lock-services-service.yaml --ignore-not-found
-kubectl delete -f ../k8s/log-services-service.yaml --ignore-not-found
-kubectl delete -f ../k8s/user-services-service.yaml --ignore-not-found
+for image in "${PROJECT_IMAGES[@]}"; do
+    if docker images -q "$image" >/dev/null 2>&1; then
+        docker rmi "$image" 2>/dev/null || true
+        echo "✅ Removed $image"
+    fi
+done
 
-# Deployments
-kubectl delete -f ../k8s/frontend-deployment.yaml --ignore-not-found
-kubectl delete -f ../k8s/event-bus-deployment.yaml --ignore-not-found
-kubectl delete -f ../k8s/lock-services-deployment.yaml --ignore-not-found
-kubectl delete -f ../k8s/log-services-deployment.yaml --ignore-not-found
-kubectl delete -f ../k8s/user-services-deployment.yaml --ignore-not-found
+# 4. Clean up unused resources
+echo "🧽 Cleaning unused Docker resources..."
+docker volume prune -f >/dev/null 2>&1 || true
+docker network prune -f >/dev/null 2>&1 || true
 
-# Config e Namespace
-kubectl delete -f ../k8s/configmap.yaml --ignore-not-found
-kubectl delete -f ../k8s/namespace.yaml --ignore-not-found
+echo ""
+echo "🎉 CLEANUP COMPLETED!"
+echo "===================="
+echo "✅ Kubernetes resources: Cleaned"
+echo "✅ Docker containers: Cleaned"
+echo "✅ Docker images: Cleaned"
+echo "✅ Docker volumes: Cleaned"
+echo "✅ Docker networks: Cleaned"
+echo ""
+echo "To rebuild everything:"
+echo "1. bash scripts/build-images.sh"
+echo "2. bash scripts/deploy.sh"
