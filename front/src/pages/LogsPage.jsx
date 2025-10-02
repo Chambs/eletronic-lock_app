@@ -15,7 +15,7 @@ function LogsPage() {
   async function fetchLogs() {
     setLoading(true);
     try {
-      const resp = await axios.get(`http://localhost:3002/logs?code=${localStorage.getItem('code')}`);
+      const resp = await axios.get(`/api/logs/?code=${localStorage.getItem('code')}`);
       setLogs(resp.data.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp)));
     } catch (error) {
       setLogs([]);

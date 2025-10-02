@@ -14,10 +14,10 @@ function RegisterLockPage() {
     setError('');
 
     try {
-      const response = await axios.post('http://localhost:3003/register', { code:code, nickname:nickname, admin:localStorage.getItem('email') });
+      const response = await axios.post('/api/locks/register', { code:code, nickname:nickname, admin:localStorage.getItem('email') });
 
       try{
-        await axios.post('http://localhost:3001/users/register', { email: localStorage.getItem('email'), code: code });
+        await axios.post('/api/users/register', { email: localStorage.getItem('email'), code: code });
       }catch(error){
         setError(error.response.data.error);
       }

@@ -11,7 +11,7 @@ function HomePage() {
   useEffect(() => {
     async function fetchStatus() {
       try {
-        const resp = await axios.get(`http://localhost:3003/status?code=${localStorage.getItem('code')}`);
+        const resp = await axios.get(`/api/locks/status?code=${localStorage.getItem('code')}`);
         setLockStatus(resp.data.status);
       } catch {
         setLockStatus('Desconhecido');
@@ -23,7 +23,7 @@ function HomePage() {
   useEffect(() => {
     async function returnInviteCode() {
       try {
-        const resp = await axios.get(`http://localhost:3003/invite-code?code=${localStorage.getItem('code')}`);
+        const resp = await axios.get(`/api/locks/invite-code?code=${localStorage.getItem('code')}`);
         setInviteCode(resp.data.inviteCode);
       } catch {
         setInviteCode("[Erro ao buscar código de convite]");
@@ -42,7 +42,7 @@ const isAdmin = users.find(u => u.email === loggedEmail)?.isAdmin;
 useEffect(() => {
   async function fetchUsers() {
     try {
-      const resp = await axios.get(`http://localhost:3001/users?code=${code}`);
+      const resp = await axios.get(`/api/users/?code=${code}`);
       setUsers(resp.data);
     } catch {
       setUsers([]);
@@ -58,7 +58,7 @@ useEffect(() => {
 
     if (window.confirm(confirmMessage)) {
       try {
-        await axios.post('http://localhost:3003/remove-user-access', {
+        await axios.post('/api/locks/remove-user-access', {
           email: localStorage.getItem('email'),
           code: localStorage.getItem('code')
         });
