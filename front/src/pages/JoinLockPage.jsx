@@ -13,10 +13,10 @@ function JoinLockPage() {
     setError('');
 
     try {
-      const response = await axios.post('http://localhost:3003/join', { invitationCode:code, email:localStorage.getItem('email') } );
+      const response = await axios.post('/api/locks/join', { invitationCode:code, email:localStorage.getItem('email') } );
 
       try{
-        await axios.post('http://localhost:3004/join',{
+        await axios.post('/api/events/join',{
           invitationCode: code,
           email:localStorage.getItem('email'),
           user: localStorage.getItem('user'), 

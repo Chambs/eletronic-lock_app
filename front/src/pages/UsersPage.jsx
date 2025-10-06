@@ -23,7 +23,7 @@ function UsersPage() {
   async function fetchUsers() {
     setLoading(true);
     try {
-      const resp = await axios.get(`http://localhost:3001/users?code=${code}`);
+      const resp = await axios.get(`/api/users/?code=${code}`);
       setUsers(resp.data);
     } catch {
       setUsers([]);
@@ -36,7 +36,7 @@ function UsersPage() {
     if (window.confirm("Tem certeza que deseja excluir este usuário?")) {
       try {
         await axios.delete(
-          `http://localhost:3003/locks/${localStorage.getItem('code')}/invitee/${email}?requester=${loggedEmail}`
+          `/api/locks/locks/${localStorage.getItem('code')}/invitee/${email}?requester=${loggedEmail}`
         );
         alert("Usuário removido!");
         fetchUsers();
@@ -79,7 +79,7 @@ function UsersPage() {
       return URL.createObjectURL(selectedImage);
     }
     if (user.profileImage) {
-      return `http://localhost:3001/uploads/${user.profileImage}`;
+      return `/api/users/uploads/${user.profileImage}`;
     }
     return userIcon;
   }
@@ -108,7 +108,7 @@ function UsersPage() {
         formData.append('profileImage', selectedImage);
       }
 
-      await axios.put(`http://localhost:3001/users/${editingUser.email}`, formData, {
+      await axios.put(`/api/users/${editingUser.email}`, formData, {
         headers: { 'Content-Type': 'multipart/form-data' }
       });
 
@@ -135,7 +135,7 @@ function UsersPage() {
           {users.map((user, idx) => (
             <div key={idx} className="user-card" style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
               <img
-                src={user.profileImage ? `http://localhost:3001/uploads/${user.profileImage}` : userIcon}
+                src={user.profileImage ? `/api/users/uploads/${user.profileImage}` : userIcon}
                 alt="Ícone de usuário"
                 style={{
                   width: 48,

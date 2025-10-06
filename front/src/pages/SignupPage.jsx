@@ -37,7 +37,7 @@ function SignupPage() {
     }
 
     try {
-      await axios.post('http://localhost:3001/users', { name, email, password });
+      await axios.post('/api/users/', { name, email, password });
       alert('Cadastro realizado com sucesso!');
       navigate('/login');
     } catch (error) {

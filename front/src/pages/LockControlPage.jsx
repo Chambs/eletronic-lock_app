@@ -11,7 +11,7 @@ function LockControlPage() {
   useEffect(() => {
     async function fetchStatus() {
       try {
-        const resp = await axios.get(`http://localhost:3003/status?code=${localStorage.getItem('code')}`);
+        const resp = await axios.get(`/api/locks/status?code=${localStorage.getItem('code')}`);
         setStatus(resp.data.status);
       } catch {
         setStatus('Desconhecido');
@@ -23,9 +23,9 @@ function LockControlPage() {
 
   async function handleAction(action) {
     try {
-      await axios.post('http://localhost:3001/users/lock-actions', { user:user, action:action, code:localStorage.getItem('code')  });
+      await axios.post('/api/users/lock-actions', { user:user, action:action, code:localStorage.getItem('code')  });
       const novoStatus = action === 'ABRIR' ? 'Aberta' : 'Fechada';
-      await axios.post('http://localhost:3003/status', { status: novoStatus, code: localStorage.getItem('code') });
+      await axios.post('/api/locks/status', { status: novoStatus, code: localStorage.getItem('code') });
     } catch (error) {
       alert('Erro ao controlar a fechadura.');
     }

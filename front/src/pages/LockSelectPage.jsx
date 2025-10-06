@@ -12,7 +12,7 @@ function LockSelectPage() {
   useEffect(() => {
     async function fetchStatus() {
       try {
-        const resp = await axios.post('http://localhost:3003/locks', { email: localStorage.getItem('email') });
+        const resp = await axios.post('/api/locks/locks', { email: localStorage.getItem('email') });
         setLocks(resp.data.list);
       } catch {
         setLocks([]);

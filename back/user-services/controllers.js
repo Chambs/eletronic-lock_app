@@ -1,6 +1,6 @@
 const users = require('./users');
 const axios = require('axios');
-const LOG_SERVICE_URL = 'http://localhost:3002/logs';
+const LOG_SERVICE_URL = 'http://log-service:3002/logs';
 const { getAll, findByEmail, emailExists, addUser, findUsersByCode, addAdminCodeToUser, addNonAdminCodeToUser } = require('./users');
 const multer = require('multer');
 const path = require('path');
@@ -80,7 +80,7 @@ async function updateUser(req, res) {
 
     users.updateEmail(email, newEmail);
 
-    const resp = await axios.post('http://localhost:3003/update-email', { email: email, newEmail: newEmail });
+    const resp = await axios.post('http://lock-service:3003/update-email', { email: email, newEmail: newEmail });
 
     return res.json({ message: 'Usuário atualizado com sucesso!', user });
   }
@@ -109,7 +109,7 @@ async function deleteUser(req, res) {
   users.deleteUser(email);
 
   try {
-    await axios.post('http://localhost:3003/remove-user-access', { email });
+    await axios.post('http://lock-service:3003/remove-user-access', { email });
   } catch (e) {
     console.error('Erro ao remover acessos:', e.message);
   }
