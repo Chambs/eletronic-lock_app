@@ -6,6 +6,9 @@ import 'pages/SignUpPage.dart';
 import 'pages/HomePage.dart';
 import 'pages/RegisterLockPage.dart';
 import 'pages/JoinLockPage.dart';
+import 'pages/LockPage.dart';
+import 'pages/LogsPage.dart';
+import 'pages/UsersPage.dart';
 
 final GoRouter _router = GoRouter(
   initialLocation: '/',
@@ -44,6 +47,27 @@ final GoRouter _router = GoRouter(
       path: '/join-lock',
       builder: (BuildContext context, GoRouterState state) {
         return const JoinLockPage();
+      },
+    ),
+    GoRoute(
+      path: '/lock/:registrationCode',
+      builder: (BuildContext context, GoRouterState state) {
+        final registrationCode = state.pathParameters['registrationCode']!;
+        return LockPage(registrationCode: registrationCode);
+      },
+    ),
+    GoRoute(
+      path: '/logs/:registrationCode',
+      builder: (BuildContext context, GoRouterState state) {
+        final registrationCode = state.pathParameters['registrationCode']!;
+        return LogsPage(registrationCode: registrationCode);
+      },
+    ),
+    GoRoute(
+      path: '/users/:registrationCode',
+      builder: (BuildContext context, GoRouterState state) {
+        final registrationCode = state.pathParameters['registrationCode']!;
+        return UsersPage(registrationCode: registrationCode);
       },
     ),
   ],

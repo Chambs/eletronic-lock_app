@@ -48,7 +48,6 @@ class _RegisterLockPageState extends State<RegisterLockPage> {
         throw Exception('User not authenticated. Please log in again.');
       }
 
-      // Primeira requisição para /register
       final response1 = await http.post(
         Uri.parse('http://localhost:3003/register'),
         headers: {'Content-Type': 'application/json'},
@@ -178,7 +177,7 @@ class _RegisterLockPageState extends State<RegisterLockPage> {
                   TextField(
                     controller: _registrationCodeController,
                     style: const TextStyle(color: Colors.white),
-                    decoration: inputDecoration.copyWith(hintText: 'Lock Registration Code'),
+                    decoration: inputDecoration.copyWith(hintText: 'Lock registration code'),
                   ),
                    if (_errorMessage.isNotEmpty)
                     Padding(
