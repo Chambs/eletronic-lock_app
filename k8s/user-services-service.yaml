@@ -5,7 +5,7 @@ metadata:
   namespace: electronic-lock-app
 spec:
   selector:
-    app: user-service
+    app: user-services
   ports:
   - port: 3001
     targetPort: 3001
