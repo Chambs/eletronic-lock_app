@@ -39,7 +39,7 @@ class _LogsPageState extends State<LogsPage> {
           _isLoading = false;
         });
       } else {
-        throw Exception('Falha ao carregar o histórico de logs.');
+        throw Exception('Failed to load log history.');
       }
     } catch (e) {
       setState(() {
@@ -69,7 +69,7 @@ class _LogsPageState extends State<LogsPage> {
                 style: const TextStyle(color: Colors.white, fontSize: 16, fontFamily: 'Inter'),
                 children: <TextSpan>[
                   TextSpan(text: log.user, style: const TextStyle(fontWeight: FontWeight.bold)),
-                  const TextSpan(text: ' realizou a ação '),
+                  const TextSpan(text: ' executed '),
                   TextSpan(text: log.action, style: const TextStyle(fontWeight: FontWeight.bold)),
                 ],
               ),
@@ -93,7 +93,7 @@ class _LogsPageState extends State<LogsPage> {
       return Center(child: Text(_errorMessage, style: const TextStyle(color: Colors.red, fontSize: 16)));
     }
     if (_logs.isEmpty) {
-      return const Center(child: Text('Nenhuma ação registrada.', style: TextStyle(color: Colors.white, fontSize: 18)));
+      return const Center(child: Text('No logs found.', style: TextStyle(color: Colors.white, fontSize: 18)));
     }
 
     return Column(
@@ -117,7 +117,7 @@ class _LogsPageState extends State<LogsPage> {
               side: BorderSide(color: Colors.white.withOpacity(0.5)),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
             ),
-            child: const Text('Voltar'),
+            child: const Text('Back'),
           ),
         ),
       ],
@@ -139,7 +139,7 @@ class _LogsPageState extends State<LogsPage> {
         appBar: AppBar(
           backgroundColor: Colors.transparent,
           elevation: 0,
-          title: const Text('Histórico de Registros', style: TextStyle(color: Colors.white)),
+          title: const Text('Log History', style: TextStyle(color: Colors.white)),
           leading: IconButton(
             icon: const Icon(Icons.arrow_back, color: Colors.white),
             onPressed: () => context.go('/lock/${widget.registrationCode}'),
