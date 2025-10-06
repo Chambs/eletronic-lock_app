@@ -9,16 +9,12 @@ class InitialPage extends StatelessWidget {
 
     final ButtonStyle customButtonStyle = ElevatedButton.styleFrom(
       backgroundColor: const Color.fromARGB(255, 17, 47, 80),
-
       foregroundColor: Colors.white,
-
       minimumSize: const Size(280, 50),
-
       textStyle: const TextStyle(
         fontSize: 16,
         fontWeight: FontWeight.normal,
       ),
-
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
       ),

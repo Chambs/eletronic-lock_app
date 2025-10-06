@@ -4,6 +4,8 @@ import 'pages/InitialPage.dart';
 import 'pages/SignInPage.dart';
 import 'pages/SignUpPage.dart';
 import 'pages/HomePage.dart';
+import 'pages/RegisterLockPage.dart';
+import 'pages/JoinLockPage.dart';
 
 final GoRouter _router = GoRouter(
   initialLocation: '/',
@@ -32,7 +34,18 @@ final GoRouter _router = GoRouter(
         return const HomePage();
       },
     ),
-    // register, join...
+    GoRoute(
+      path: '/register-lock',
+      builder: (BuildContext context, GoRouterState state) {
+        return const RegisterLockPage();
+      },
+    ),
+    GoRoute(
+      path: '/join-lock',
+      builder: (BuildContext context, GoRouterState state) {
+        return const JoinLockPage();
+      },
+    ),
   ],
 );
 
