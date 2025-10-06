@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'pages/InitialPage.dart';
 import 'pages/SignInPage.dart';
 import 'pages/SignUpPage.dart';
+import 'pages/HomePage.dart';
 
 final GoRouter _router = GoRouter(
   initialLocation: '/',
@@ -25,6 +26,13 @@ final GoRouter _router = GoRouter(
         return const SignUpPage();
       },
     ),
+    GoRoute(
+      path: '/home',
+      builder: (BuildContext context, GoRouterState state) {
+        return const HomePage();
+      },
+    ),
+    // register, join...
   ],
 );
 

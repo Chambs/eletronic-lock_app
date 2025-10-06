@@ -38,7 +38,7 @@ class InitialPage extends StatelessWidget {
       child: Scaffold(
         backgroundColor: Colors.transparent,
         appBar: AppBar(
-          backgroundColor: Color.fromARGB(255, 6, 17, 33), //Colors.transparent,
+          backgroundColor: Color.fromARGB(255, 6, 17, 33),
           elevation: 0,
           title: const Center(
             child: Text(
