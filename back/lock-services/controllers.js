@@ -130,9 +130,9 @@ async function removeUserAccess(req, res) {
     lock.nonAdminUsers = [];
 
     try {
-      await axios.post('http://localhost:3001/users/remove-code', { email, code }).catch(() => {});
-      await axios.post('http://localhost:3002/logs/reset', { code }).catch(() => {});
-      await axios.post('http://localhost:3004/join', {
+      await axios.post('http://user-service:3001/users/remove-code', { email, code }).catch(() => {});
+      await axios.post('http://log-service:3002/logs/reset', { code }).catch(() => {});
+      await axios.post('http://event-bus:3004/join', {
         type: "ADMIN_REMOVED",
         data: { lockCode: code }
       });
@@ -153,7 +153,7 @@ async function removeUserAccess(req, res) {
     }
 
     
-    await axios.post('http://localhost:3001/users/remove-code', { email, code }).catch(() => {});
+    await axios.post('http://user-service:3001/users/remove-code', { email, code }).catch(() => {});
     return res.json({ message: 'Acesso de usuário removido.' });
   }
 }
@@ -165,7 +165,7 @@ function removeInvitedUser(registrationCode, emailToRemove) {
   const prevCount = lock.nonAdminUsers.length;
   lock.nonAdminUsers = lock.nonAdminUsers.filter(user => user.email !== emailToRemove);
   if (lock.nonAdminUsers.length < prevCount) {
-    axios.post('http://localhost:3001/users/remove-code', { email: emailToRemove, code: lock.registrationCode })
+    axios.post('http://user-service:3001/users/remove-code', { email: emailToRemove, code: lock.registrationCode })
       .catch(() => {});
     return true;
   }
@@ -179,7 +179,7 @@ function removeOwnAccess(registrationCode, userEmail) {
   const prevCount = lock.nonAdminUsers.length;
   lock.nonAdminUsers = lock.nonAdminUsers.filter(user => user.email !== userEmail);
   if (lock.nonAdminUsers.length < prevCount) {
-    axios.post('http://localhost:3001/users/remove-code', { email: userEmail, code: registrationCode })
+    axios.post('http://user-service:3001/users/remove-code', { email: userEmail, code: registrationCode })
       .catch(() => {});
     return true;
   }

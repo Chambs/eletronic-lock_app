@@ -3,7 +3,7 @@ const cors = require('cors');
 const app = express();
 const axios = require('axios');
 
-const PORT = 3004;
+const PORT = process.env.PORT || 3004;
 
 app.use(express.json());
 app.use(cors());
@@ -20,6 +20,6 @@ app.post('/join', (req, res) => {
     res.status(200).send({msg:'ok'});
 });
 
-app.listen(PORT, () => {
-  console.log(`SharedBus is running on http://localhost:${PORT}`);
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`SharedBus is running on http://0.0.0.0:${PORT}`);
 });

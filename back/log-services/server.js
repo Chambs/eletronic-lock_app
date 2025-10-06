@@ -3,7 +3,7 @@ const cors = require('cors');
 const routes = require('./routes');
 
 const app = express();
-const PORT = 3002;
+const PORT = process.env.PORT || 3002;
 
 app.use(cors());
 app.use(express.json());
@@ -15,6 +15,6 @@ app.get('/logs/health', (req, res) => {
 
 app.use('/logs', routes);
 
-app.listen(PORT, () => {
-  console.log(`LogService is running on http://localhost:${PORT}`);
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`LogService is running on http://0.0.0.0:${PORT}`);
 });
