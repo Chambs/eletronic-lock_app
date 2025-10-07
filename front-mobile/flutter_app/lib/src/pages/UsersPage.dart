@@ -31,19 +31,28 @@ class _UsersPageState extends State<UsersPage> {
   }
 
   Future<void> _fetchUsers() async {
-    setState(() { _isLoading = true; });
+    setState(() {
+      _isLoading = true;
+    });
     try {
       final prefs = await SharedPreferences.getInstance();
       _currentUserEmail = prefs.getString('email');
 
-      final response = await http.get(Uri.parse('http://localhost:3001/users?code=${widget.registrationCode}'));
+      final response = await http.get(
+        Uri.parse('/api/users?code=${widget.registrationCode}'),
+      );
 
       if (response.statusCode == 200) {
         final List<dynamic> body = jsonDecode(response.body);
-        final fetchedUsers = body.map((dynamic item) => User.fromJson(item as Map<String, dynamic>)).toList();
-        
-        final currentUser = fetchedUsers.firstWhere((u) => u.email == _currentUserEmail, orElse: () => User(name: '', email: '', isAdmin: false));
-        
+        final fetchedUsers = body
+            .map((dynamic item) => User.fromJson(item as Map<String, dynamic>))
+            .toList();
+
+        final currentUser = fetchedUsers.firstWhere(
+          (u) => u.email == _currentUserEmail,
+          orElse: () => User(name: '', email: '', isAdmin: false),
+        );
+
         setState(() {
           _users = fetchedUsers;
           _currentUserIsAdmin = currentUser.isAdmin;
@@ -61,14 +70,22 @@ class _UsersPageState extends State<UsersPage> {
   }
 
   Future<void> _handleRemoveUser(String emailToRemove) async {
-     final confirm = await showDialog<bool>(
+    final confirm = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Remove User'),
-        content: const Text('Are you sure you want to remove this user? This action cannot be undone.'),
+        content: const Text(
+          'Are you sure you want to remove this user? This action cannot be undone.',
+        ),
         actions: [
-          TextButton(onPressed: () => Navigator.of(context).pop(false), child: const Text('Cancel')),
-          TextButton(onPressed: () => Navigator.of(context).pop(true), child: const Text('Remove')),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text('Remove'),
+          ),
         ],
       ),
     );
@@ -81,17 +98,19 @@ class _UsersPageState extends State<UsersPage> {
       }
 
       final uri = Uri.parse(
-        'http://localhost:3003/locks/${widget.registrationCode}/invitee/$emailToRemove?requester=$_currentUserEmail'
+        '/api/locks/locks/${widget.registrationCode}/invitee/$emailToRemove?requester=$_currentUserEmail',
       );
 
       final response = await http.delete(uri);
 
       if (response.statusCode == 200) {
         if (mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-            content: Text('User successfully removed!'),
-            backgroundColor: Colors.green,
-          ));
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('User successfully removed!'),
+              backgroundColor: Colors.green,
+            ),
+          );
         }
         _fetchUsers();
       } else {
@@ -103,10 +122,12 @@ class _UsersPageState extends State<UsersPage> {
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text(e.toString().replaceFirst('Exception: ', '')),
-          backgroundColor: Colors.red,
-        ));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(e.toString().replaceFirst('Exception: ', '')),
+            backgroundColor: Colors.red,
+          ),
+        );
       }
     }
   }
@@ -114,7 +135,8 @@ class _UsersPageState extends State<UsersPage> {
   void _showEditUserDialog(User user) {
     showDialog(
       context: context,
-      builder: (context) => _EditUserDialog(user: user, onUserUpdated: _fetchUsers),
+      builder: (context) =>
+          _EditUserDialog(user: user, onUserUpdated: _fetchUsers),
     );
   }
 
@@ -133,35 +155,56 @@ class _UsersPageState extends State<UsersPage> {
             CircleAvatar(
               radius: 28,
               backgroundColor: Colors.white.withOpacity(0.2),
-              backgroundImage: user.profileImage != null ? NetworkImage('http://localhost:3001/uploads/${user.profileImage}') : null,
-              child: user.profileImage == null ? const Icon(Icons.person, color: Colors.white70, size: 30) : null,
+              backgroundImage: user.profileImage != null
+                  ? NetworkImage('/api/uploads/${user.profileImage}')
+                  : null,
+              child: user.profileImage == null
+                  ? const Icon(Icons.person, color: Colors.white70, size: 30)
+                  : null,
             ),
             const SizedBox(width: 16),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Username: ${user.name}', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)),
+                  Text(
+                    'Username: ${user.name}',
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                    ),
+                  ),
                   const SizedBox(height: 4),
-                  Text('Email: ${user.email}', style: const TextStyle(color: Colors.white70)),
+                  Text(
+                    'Email: ${user.email}',
+                    style: const TextStyle(color: Colors.white70),
+                  ),
                   const SizedBox(height: 4),
-                  Text('Role: ${user.isAdmin ? "Admin" : "Guest"}', style: const TextStyle(color: Colors.white70)),
+                  Text(
+                    'Role: ${user.isAdmin ? "Admin" : "Guest"}',
+                    style: const TextStyle(color: Colors.white70),
+                  ),
                   const SizedBox(height: 12),
                   Row(
                     children: [
                       if (_currentUserIsAdmin && !user.isAdmin)
                         ElevatedButton(
                           onPressed: () => _handleRemoveUser(user.email),
-                          style: ElevatedButton.styleFrom(backgroundColor: Colors.red.shade800, foregroundColor: Colors.white),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.red.shade800,
+                            foregroundColor: Colors.white,
+                          ),
                           child: const Text('Remove'),
                         ),
                       if (user.email == _currentUserEmail) ...[
-                        if (_currentUserIsAdmin && !user.isAdmin) const SizedBox(width: 10),
+                        if (_currentUserIsAdmin && !user.isAdmin)
+                          const SizedBox(width: 10),
                         ElevatedButton(
                           onPressed: () => _showEditUserDialog(user),
                           child: const Text('Edit'),
                         ),
-                      ]
+                      ],
                     ],
                   ),
                 ],
@@ -174,9 +217,24 @@ class _UsersPageState extends State<UsersPage> {
   }
 
   Widget _buildBody() {
-    if (_isLoading) return const Center(child: CircularProgressIndicator(color: Colors.white));
-    if (_errorMessage.isNotEmpty) return Center(child: Text(_errorMessage, style: const TextStyle(color: Colors.red, fontSize: 16)));
-    if (_users.isEmpty) return const Center(child: Text('No registered users.', style: TextStyle(color: Colors.white, fontSize: 18)));
+    if (_isLoading)
+      return const Center(
+        child: CircularProgressIndicator(color: Colors.white),
+      );
+    if (_errorMessage.isNotEmpty)
+      return Center(
+        child: Text(
+          _errorMessage,
+          style: const TextStyle(color: Colors.red, fontSize: 16),
+        ),
+      );
+    if (_users.isEmpty)
+      return const Center(
+        child: Text(
+          'No registered users.',
+          style: TextStyle(color: Colors.white, fontSize: 18),
+        ),
+      );
 
     return Column(
       children: [
@@ -195,7 +253,9 @@ class _UsersPageState extends State<UsersPage> {
               foregroundColor: Colors.white,
               minimumSize: const Size(double.infinity, 50),
               side: BorderSide(color: Colors.white.withOpacity(0.5)),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
             ),
             child: const Text('Back'),
           ),
@@ -207,14 +267,26 @@ class _UsersPageState extends State<UsersPage> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: const BoxDecoration(gradient: LinearGradient(colors: [Color(0xFF0D1B2A), Color(0xFF000814)], begin: Alignment.topCenter, end: Alignment.bottomCenter)),
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          colors: [Color(0xFF0D1B2A), Color(0xFF000814)],
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+        ),
+      ),
       child: Scaffold(
         backgroundColor: Colors.transparent,
         appBar: AppBar(
           backgroundColor: Colors.transparent,
           elevation: 0,
-          title: const Text('Registered Users', style: TextStyle(color: Colors.white)),
-          leading: IconButton(icon: const Icon(Icons.arrow_back, color: Colors.white), onPressed: () => context.go('/lock/${widget.registrationCode}')),
+          title: const Text(
+            'Registered Users',
+            style: TextStyle(color: Colors.white),
+          ),
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back, color: Colors.white),
+            onPressed: () => context.go('/lock/${widget.registrationCode}'),
+          ),
         ),
         body: _buildBody(),
       ),
@@ -235,7 +307,7 @@ class _EditUserDialogState extends State<_EditUserDialog> {
   late TextEditingController _nameController;
   late TextEditingController _emailController;
   late TextEditingController _passwordController;
-  
+
   XFile? _selectedImageFile;
   Uint8List? _selectedImageBytes;
 
@@ -259,7 +331,9 @@ class _EditUserDialogState extends State<_EditUserDialog> {
   }
 
   Future<void> _pickImage() async {
-    final pickedFile = await ImagePicker().pickImage(source: ImageSource.gallery);
+    final pickedFile = await ImagePicker().pickImage(
+      source: ImageSource.gallery,
+    );
     if (pickedFile != null) {
       final bytes = await pickedFile.readAsBytes();
       setState(() {
@@ -270,22 +344,34 @@ class _EditUserDialogState extends State<_EditUserDialog> {
   }
 
   Future<void> _handleSave() async {
-    if (_nameController.text.trim().isEmpty || _emailController.text.trim().isEmpty) {
-      setState(() { _error = 'Name and email cannot be empty.'; });
+    if (_nameController.text.trim().isEmpty ||
+        _emailController.text.trim().isEmpty) {
+      setState(() {
+        _error = 'Name and email cannot be empty.';
+      });
       return;
     }
-    if (_passwordController.text.isNotEmpty && _passwordController.text.length < 6) {
-      setState(() { _error = 'The new password must be at least 6 characters long.'; });
+    if (_passwordController.text.isNotEmpty &&
+        _passwordController.text.length < 6) {
+      setState(() {
+        _error = 'The new password must be at least 6 characters long.';
+      });
       return;
     }
 
-    setState(() { _isSaving = true; _error = ''; });
+    setState(() {
+      _isSaving = true;
+      _error = '';
+    });
 
     try {
       final prefs = await SharedPreferences.getInstance();
       final currentUserEmail = prefs.getString('email');
 
-      var request = http.MultipartRequest('PUT', Uri.parse('http://localhost:3001/users/${widget.user.email}'));
+      var request = http.MultipartRequest(
+        'PUT',
+        Uri.parse('/api/users/${widget.user.email}'),
+      );
       request.fields['name'] = _nameController.text;
       request.fields['email'] = _emailController.text;
       request.fields['password'] = _passwordController.text;
@@ -294,17 +380,21 @@ class _EditUserDialogState extends State<_EditUserDialog> {
       if (_selectedImageFile != null && _selectedImageBytes != null) {
         if (kIsWeb) {
           // WEB
-          request.files.add(http.MultipartFile.fromBytes(
-            'profileImage',
-            _selectedImageBytes!,
-            filename: _selectedImageFile!.name,
-          ));
+          request.files.add(
+            http.MultipartFile.fromBytes(
+              'profileImage',
+              _selectedImageBytes!,
+              filename: _selectedImageFile!.name,
+            ),
+          );
         } else {
           // MOBILE
-          request.files.add(await http.MultipartFile.fromPath(
-            'profileImage',
-            _selectedImageFile!.path,
-          ));
+          request.files.add(
+            await http.MultipartFile.fromPath(
+              'profileImage',
+              _selectedImageFile!.path,
+            ),
+          );
         }
       }
 
@@ -317,10 +407,17 @@ class _EditUserDialogState extends State<_EditUserDialog> {
         }
         widget.onUserUpdated();
         Navigator.of(context).pop();
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('User updated successfully!'), backgroundColor: Colors.green));
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('User updated successfully!'),
+            backgroundColor: Colors.green,
+          ),
+        );
       } else {
         final responseBody = await response.stream.bytesToString();
-        throw Exception(jsonDecode(responseBody)['error'] ?? 'Error updating user.');
+        throw Exception(
+          jsonDecode(responseBody)['error'] ?? 'Error updating user.',
+        );
       }
     } catch (e) {
       setState(() {
@@ -328,7 +425,9 @@ class _EditUserDialogState extends State<_EditUserDialog> {
       });
     } finally {
       if (mounted) {
-        setState(() { _isSaving = false; });
+        setState(() {
+          _isSaving = false;
+        });
       }
     }
   }
@@ -338,7 +437,8 @@ class _EditUserDialogState extends State<_EditUserDialog> {
       return MemoryImage(_selectedImageBytes!);
     }
     if (widget.user.profileImage != null) {
-      return NetworkImage('http://localhost:3001/uploads/${widget.user.profileImage}');
+      return NetworkImage('/api/uploads/${widget.user.profileImage}');
+      //return NetworkImage('/api/users/uploads/${widget.user.profileImage}');
     }
     return null;
   }
@@ -361,24 +461,64 @@ class _EditUserDialogState extends State<_EditUserDialog> {
                 radius: 40,
                 backgroundColor: Colors.white.withOpacity(0.2),
                 backgroundImage: imageProvider,
-                child: imageProvider == null ? const Icon(Icons.camera_alt, color: Colors.white70) : null,
+                child: imageProvider == null
+                    ? const Icon(Icons.camera_alt, color: Colors.white70)
+                    : null,
               ),
             ),
             const SizedBox(height: 8),
-            const Text('Tap to change image', style: TextStyle(color: Colors.white70, fontSize: 12)),
+            const Text(
+              'Tap to change image',
+              style: TextStyle(color: Colors.white70, fontSize: 12),
+            ),
             const SizedBox(height: 20),
-            TextField(controller: _nameController, style: const TextStyle(color: Colors.white), decoration: const InputDecoration(labelText: 'Nome', labelStyle: TextStyle(color: Colors.white70))),
-            TextField(controller: _emailController, style: const TextStyle(color: Colors.white), decoration: const InputDecoration(labelText: 'Email', labelStyle: TextStyle(color: Colors.white70))),
-            TextField(controller: _passwordController, obscureText: true, style: const TextStyle(color: Colors.white), decoration: const InputDecoration(labelText: 'New Password (optional)', labelStyle: TextStyle(color: Colors.white70))),
-            if (_error.isNotEmpty) Padding(padding: const EdgeInsets.only(top: 16.0), child: Text(_error, style: const TextStyle(color: Colors.red))),
+            TextField(
+              controller: _nameController,
+              style: const TextStyle(color: Colors.white),
+              decoration: const InputDecoration(
+                labelText: 'Nome',
+                labelStyle: TextStyle(color: Colors.white70),
+              ),
+            ),
+            TextField(
+              controller: _emailController,
+              style: const TextStyle(color: Colors.white),
+              decoration: const InputDecoration(
+                labelText: 'Email',
+                labelStyle: TextStyle(color: Colors.white70),
+              ),
+            ),
+            TextField(
+              controller: _passwordController,
+              obscureText: true,
+              style: const TextStyle(color: Colors.white),
+              decoration: const InputDecoration(
+                labelText: 'New Password (optional)',
+                labelStyle: TextStyle(color: Colors.white70),
+              ),
+            ),
+            if (_error.isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.only(top: 16.0),
+                child: Text(_error, style: const TextStyle(color: Colors.red)),
+              ),
           ],
         ),
       ),
       actions: [
-        TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text('Cancel')),
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: const Text('Cancel'),
+        ),
         ElevatedButton(
           onPressed: _isSaving ? null : _handleSave,
-          child: _isSaving ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2)) : const Text('Save'),
+          child: _isSaving
+              ? const SizedBox(
+                  width: 20,
+                  height: 20,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                )
+              : const Text('Save'),
         ),
       ],
     );

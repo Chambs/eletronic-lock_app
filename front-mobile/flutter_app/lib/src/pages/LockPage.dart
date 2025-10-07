@@ -41,7 +41,7 @@ class _LockPageState extends State<LockPage> {
   Future<void> _fetchInitialDetails() async {
     try {
       final inviteCodeResponse = await http.get(
-        Uri.parse('http://localhost:3003/invite-code?code=${widget.registrationCode}')
+        Uri.parse('/api/locks/invite-code?code=${widget.registrationCode}')
       );
 
       if (inviteCodeResponse.statusCode != 200) {
@@ -72,7 +72,7 @@ class _LockPageState extends State<LockPage> {
   void _startStatusPolling() {
     _statusTimer = Timer.periodic(const Duration(milliseconds: 100), (timer) async {
       try {
-        final response = await http.get(Uri.parse('http://localhost:3003/status?code=${widget.registrationCode}'));
+        final response = await http.get(Uri.parse('/api/locks/status?code=${widget.registrationCode}'));
         if (response.statusCode == 200) {
           final newStatus = jsonDecode(response.body)['status'];
           if (mounted && _lockDetails?['status'] != newStatus) {
@@ -108,7 +108,7 @@ class _LockPageState extends State<LockPage> {
       if (user == null || email == null) throw Exception('Unauthenticated user.');
 
       await http.post(
-        Uri.parse('http://localhost:3001/users/lock-actions'),
+        Uri.parse('/api/users/lock-actions'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({'user': user, 'action': action, 'code': widget.registrationCode}),
       );
@@ -116,7 +116,7 @@ class _LockPageState extends State<LockPage> {
       final newStatus = action == 'ABRIR' ? 'Aberta' : 'Fechada';
       final ns = action == 'ABRIR' ? 'Open' : 'Closed';
       final statusResponse = await http.post(
-        Uri.parse('http://localhost:3003/status'),
+        Uri.parse('/api/locks/status'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({'status': newStatus, 'code': widget.registrationCode}),
       );
@@ -176,7 +176,7 @@ class _LockPageState extends State<LockPage> {
         }
 
         final response = await http.post(
-          Uri.parse('http://localhost:3003/remove-user-access'),
+          Uri.parse('/api/locks/remove-user-access'),
           headers: {'Content-Type': 'application/json'},
           body: jsonEncode({
             'email': email,

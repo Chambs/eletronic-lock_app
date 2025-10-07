@@ -79,7 +79,7 @@ class App extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp.router(
-      title: 'Eletronic Lock App',
+      title: 'Electronic Lock App',
       routerConfig: _router,
       theme: ThemeData(
         primarySwatch: Colors.blue,

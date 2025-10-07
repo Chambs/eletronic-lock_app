@@ -7,7 +7,7 @@ spec:
   selector:
     app: event-bus
   ports:
-  - port: 3004
-    targetPort: 3004
+  - port: 10000
+    targetPort: 10000
     protocol: TCP
   type: ClusterIP

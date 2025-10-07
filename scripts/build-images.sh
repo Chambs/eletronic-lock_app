@@ -23,6 +23,6 @@ docker build -t electronic-lock-app/event-bus:latest ../back/shared-bus/
 
 # Build Frontend
 echo "Building frontend..."
-docker build -t electronic-lock-app/frontend:latest ../front/
+docker build -t electronic-lock-app/frontend:latest ../front-mobile/
 
 echo "All images built successfully!"

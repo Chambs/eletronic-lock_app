@@ -3,20 +3,20 @@ const cors = require('cors');
 const app = express();
 const axios = require('axios');
 
-const PORT = process.env.PORT || 3004;
+const PORT = process.env.PORT || 10000;
 
 app.use(express.json());
 app.use(cors());
 
 // Health check endpoint
-app.get('/health', (req, res) => {
+app.get('/api/events/health', (req, res) => {
     res.status(200).json({ status: 'OK', service: 'event-bus' });
 });
 
-app.post('/join', (req, res) => {
-    const event = req.body
-    axios.post('http://user-service:3001/users/join', event);
-    axios.post('http://log-service:3002/logs/join', event);
+app.post('/api/events/join', (req, res) => {
+    const event = req.body;
+    axios.post('http://user-service.electronic-lock-app.svc.cluster.local:3001/api/users/join', event);
+    axios.post('http://log-service.electronic-lock-app.svc.cluster.local:3002/api/logs/join', event);
     res.status(200).send({msg:'ok'});
 });
 

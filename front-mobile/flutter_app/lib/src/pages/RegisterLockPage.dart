@@ -49,7 +49,7 @@ class _RegisterLockPageState extends State<RegisterLockPage> {
       }
 
       final response1 = await http.post(
-        Uri.parse('http://localhost:3003/register'),
+        Uri.parse('/api/locks/register'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
           'code': registrationCode,
@@ -66,7 +66,7 @@ class _RegisterLockPageState extends State<RegisterLockPage> {
 
       try {
         final response2 = await http.post(
-          Uri.parse('http://localhost:3001/users/register'),
+          Uri.parse('/api/users/register'),
           headers: {'Content-Type': 'application/json'},
           body: jsonEncode({
             'email': email,

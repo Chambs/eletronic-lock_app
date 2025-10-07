@@ -27,7 +27,7 @@ class _SignInPageState extends State<SignInPage> {
 
     try {
       final response = await http.post(
-        Uri.parse('http://localhost:3001/users/login'),
+        Uri.parse('/api/users/login'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
           'email': email,

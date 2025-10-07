@@ -9,11 +9,11 @@ app.use(cors());
 app.use(express.json());
 
 // Health check endpoint
-app.get('/health', (req, res) => {
+app.get('/api/locks/health', (req, res) => {
   res.status(200).json({ status: 'OK', service: 'lock-service' });
 });
 
-app.use('/', routes);
+app.use('/api/locks', routes);
 
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`LockService is running on http://0.0.0.0:${PORT}`);

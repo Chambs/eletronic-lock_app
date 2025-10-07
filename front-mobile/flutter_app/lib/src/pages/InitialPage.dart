@@ -38,7 +38,7 @@ class InitialPage extends StatelessWidget {
           elevation: 0,
           title: const Center(
             child: Text(
-              'Eletronic Lock App',
+              'Electronic Lock App',
               style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
             ),
           ),

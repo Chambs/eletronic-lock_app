@@ -9,14 +9,14 @@ app.use(cors());
 app.use(express.json());
 
 // Health check endpoint
-app.get('/users/health', (req, res) => {
+app.get('/api/users/health', (req, res) => {
   res.status(200).json({ status: 'OK', service: 'user-service' });
 });
 
-app.use('/users', routes);
-app.use('/uploads', express.static('uploads'));
+app.use('/api/users', routes); 
 
-// Escutar em 0.0.0.0 para aceitar conexões de outros pods
+app.use('/api/uploads', express.static('uploads'));
+
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`UserService is running on http://0.0.0.0:${PORT}`);
 });

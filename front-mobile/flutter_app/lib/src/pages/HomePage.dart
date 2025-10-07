@@ -41,7 +41,7 @@ class _HomePageState extends State<HomePage> {
   Future<void> _fetchLocks(String email) async {
     try {
       final response = await http.post(
-        Uri.parse('http://localhost:3003/locks'),
+        Uri.parse('/api/locks/locks'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({'email': email}),
       );

@@ -46,7 +46,7 @@ class _JoinLockPageState extends State<JoinLockPage> {
       }
 
       final response1 = await http.post(
-        Uri.parse('http://localhost:3003/join'),
+        Uri.parse('/api/locks/join'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({'invitationCode': inviteCode, 'email': email}),
       );
@@ -62,7 +62,7 @@ class _JoinLockPageState extends State<JoinLockPage> {
 
       try {
         await http.post(
-          Uri.parse('http://localhost:3004/join'),
+          Uri.parse('/api/events/join'),
           headers: {'Content-Type': 'application/json'},
           body: jsonEncode({
             'invitationCode': inviteCode,
@@ -164,7 +164,9 @@ class _JoinLockPageState extends State<JoinLockPage> {
                   TextField(
                     controller: _inviteCodeController,
                     style: const TextStyle(color: Colors.white),
-                    decoration: inputDecoration.copyWith(hintText: 'Lock Invitation Code'),
+                    decoration: inputDecoration.copyWith(
+                      hintText: 'Lock Invitation Code',
+                    ),
                   ),
                   if (_errorMessage.isNotEmpty)
                     Padding(
@@ -183,7 +185,10 @@ class _JoinLockPageState extends State<JoinLockPage> {
                         ? const SizedBox(
                             width: 24,
                             height: 24,
-                            child: CircularProgressIndicator(strokeWidth: 3, color: Colors.white),
+                            child: CircularProgressIndicator(
+                              strokeWidth: 3,
+                              color: Colors.white,
+                            ),
                           )
                         : const Text('Join'),
                   ),
@@ -194,7 +199,9 @@ class _JoinLockPageState extends State<JoinLockPage> {
                       foregroundColor: Colors.white,
                       minimumSize: const Size(double.infinity, 50),
                       side: BorderSide(color: Colors.white.withOpacity(0.5)),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
                     ),
                     child: const Text('Back'),
                   ),

@@ -85,7 +85,7 @@ echo "Frontend: http://localhost"
 echo "User Service: http://localhost:3001 (via port-forward)"
 echo "Log Service: http://localhost:3002 (via port-forward)"
 echo "Lock Service: http://localhost:3003 (via port-forward)"
-echo "Event Bus: http://localhost:3004 (via port-forward)"
+echo "Event Bus: http://localhost:10000 (via port-forward)"
 
 echo ""
 echo "🔧 QUICK TESTS:"

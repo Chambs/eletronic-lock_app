@@ -26,7 +26,7 @@ class _LogsPageState extends State<LogsPage> {
 
   Future<void> _fetchLogs() async {
     try {
-      final response = await http.get(Uri.parse('http://localhost:3002/logs?code=${widget.registrationCode}'));
+      final response = await http.get(Uri.parse('/api/logs?code=${widget.registrationCode}'));
 
       if (response.statusCode == 200) {
         final List<dynamic> body = jsonDecode(response.body);
