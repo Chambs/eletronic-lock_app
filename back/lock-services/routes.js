@@ -10,7 +10,7 @@ router.get('/status', (req, res) => {
 
 router.post('/status', (req, res) => {
   const { status, code } = req.body;
-  if (status !== 'Aberta' && status !== 'Fechada') {
+  if (status !== 'Open' && status !== 'Closed') {
     return res.status(400).json({ error: 'Status inválido.' });
   }
   setStatus(code, status);
