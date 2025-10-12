@@ -1,9 +1,13 @@
 const users = require('./users');
 const axios = require('axios');
-const LOG_SERVICE_URL = 'http://log-service:3002/logs';
 const { getAll, findByEmail, emailExists, addUser, findUsersByCode, addAdminCodeToUser, addNonAdminCodeToUser } = require('./users');
 const multer = require('multer');
 const path = require('path');
+
+const USER_SERVICE = 'http://user-service.electronic-lock-app.svc.cluster.local:3001/api/users';
+const LOG_SERVICE = 'http://log-service.electronic-lock-app.svc.cluster.local:3002/api/logs';
+const LOCK_SERVICE = 'http://lock-service.electronic-lock-app.svc.cluster.local:3003/api/locks';
+const EVENT_SERVICE = 'http://event-bus.electronic-lock-app.svc.cluster.local:10000/api/events';
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
@@ -49,7 +53,7 @@ async function lockAction(req, res) {
   }
 
   try {
-    await axios.post(LOG_SERVICE_URL, {
+    await axios.post(`${LOG_SERVICE}`, {
       user,
       action,
       code,
@@ -80,7 +84,7 @@ async function updateUser(req, res) {
 
     users.updateEmail(email, newEmail);
 
-    const resp = await axios.post('http://lock-service:3003/update-email', { email: email, newEmail: newEmail });
+    const resp = await axios.post(`${LOCK_SERVICE}/update-email`, { email: email, newEmail: newEmail });
 
     return res.json({ message: 'Usuário atualizado com sucesso!', user });
   }
@@ -109,7 +113,7 @@ async function deleteUser(req, res) {
   users.deleteUser(email);
 
   try {
-    await axios.post('http://lock-service:3003/remove-user-access', { email });
+    await axios.post(`${LOCK_SERVICE}/remove-user-access`, { email });
   } catch (e) {
     console.error('Erro ao remover acessos:', e.message);
   }
@@ -140,6 +144,7 @@ function register(req, res) {
 
 function join(req, res) {
   const { email, code } = req.body;
+  console.log("123: "+email+" "+code);
   addNonAdminCodeToUser(email, code);
   res.json({ message: 'Join successful' });
 }

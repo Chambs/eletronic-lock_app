@@ -4,12 +4,43 @@ metadata:
   name: electronic-lock-app-ingress
   namespace: electronic-lock-app
   annotations:
-    nginx.ingress.kubernetes.io/rewrite-target: /
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
 spec:
   rules:
   - host: electronic-lock-app.local
     http:
       paths:
+      # --- Rotas da API ---
+      - path: /api/users(/|$)(.*)
+        pathType: ImplementationSpecific
+        backend:
+          service:
+            name: user-service
+            port:
+              number: 3001
+      - path: /api/logs(/|$)(.*)
+        pathType: ImplementationSpecific
+        backend:
+          service:
+            name: log-service
+            port:
+              number: 3002
+      - path: /api/locks(/|$)(.*)
+        pathType: ImplementationSpecific
+        backend:
+          service:
+            name: lock-service
+            port:
+              number: 3003
+      - path: /api/events(/|$)(.*)
+        pathType: ImplementationSpecific
+        backend:
+          service:
+            name: event-bus
+            port:
+              number: 10000
+
+      # --- Rota do Frontend (ÚLTIMA) ---
       - path: /
         pathType: Prefix
         backend:
@@ -17,31 +48,3 @@ spec:
             name: frontend
             port:
               number: 80
-      - path: /users
-        pathType: Prefix
-        backend:
-          service:
-            name: user-service
-            port:
-              number: 3001
-      - path: /logs
-        pathType: Prefix
-        backend:
-          service:
-            name: log-service
-            port:
-              number: 3002
-      - path: /locks
-        pathType: Prefix
-        backend:
-          service:
-            name: lock-service
-            port:
-              number: 3003
-      - path: /events
-        pathType: Prefix
-        backend:
-          service:
-            name: event-bus
-            port:
-              number: 3004

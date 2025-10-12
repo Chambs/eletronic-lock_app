@@ -1,5 +1,10 @@
 const axios = require('axios');
 
+const USER_SERVICE = 'http://user-service.electronic-lock-app.svc.cluster.local:3001/api/users';
+const LOG_SERVICE = 'http://log-service.electronic-lock-app.svc.cluster.local:3002/api/logs';
+//const LOCK_SERVICE = 'http://lock-service.electronic-lock-app.svc.cluster.local:3003/api/locks';
+const EVENT_SERVICE = 'http://event-bus.electronic-lock-app.svc.cluster.local:10000/api/events';
+
 let registredLocks = [
   {
     lockNumber: 1,
@@ -130,9 +135,9 @@ async function removeUserAccess(req, res) {
     lock.nonAdminUsers = [];
 
     try {
-      await axios.post('http://user-service:3001/users/remove-code', { email, code }).catch(() => {});
-      await axios.post('http://log-service:3002/logs/reset', { code }).catch(() => {});
-      await axios.post('http://event-bus:3004/join', {
+      await axios.post(`${USER_SERVICE}'/remove-code`, { email, code }).catch(() => {});
+      await axios.post(`${LOG_SERVICE}'/reset`, { code }).catch(() => {});
+      await axios.post(`${EVENT_SERVICE}/join`, {
         type: "ADMIN_REMOVED",
         data: { lockCode: code }
       });
@@ -153,7 +158,7 @@ async function removeUserAccess(req, res) {
     }
 
     
-    await axios.post('http://user-service:3001/users/remove-code', { email, code }).catch(() => {});
+    await axios.post(`${USER_SERVICE}/remove-code`, { email, code }).catch(() => {});
     return res.json({ message: 'Acesso de usuário removido.' });
   }
 }
@@ -165,7 +170,7 @@ function removeInvitedUser(registrationCode, emailToRemove) {
   const prevCount = lock.nonAdminUsers.length;
   lock.nonAdminUsers = lock.nonAdminUsers.filter(user => user.email !== emailToRemove);
   if (lock.nonAdminUsers.length < prevCount) {
-    axios.post('http://user-service:3001/users/remove-code', { email: emailToRemove, code: lock.registrationCode })
+    axios.post(`${USER_SERVICE}/remove-code`, { email: emailToRemove, code: lock.registrationCode })
       .catch(() => {});
     return true;
   }
@@ -179,7 +184,7 @@ function removeOwnAccess(registrationCode, userEmail) {
   const prevCount = lock.nonAdminUsers.length;
   lock.nonAdminUsers = lock.nonAdminUsers.filter(user => user.email !== userEmail);
   if (lock.nonAdminUsers.length < prevCount) {
-    axios.post('http://user-service:3001/users/remove-code', { email: userEmail, code: registrationCode })
+    axios.post(`${USER_SERVICE}/remove-code`, { email: userEmail, code: registrationCode })
       .catch(() => {});
     return true;
   }

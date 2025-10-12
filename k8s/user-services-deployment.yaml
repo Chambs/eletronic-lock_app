@@ -39,13 +39,13 @@ spec:
               cpu: "200m"
           livenessProbe:
             httpGet:
-              path: /users/health
+              path: /api/users/health
               port: 3001
             initialDelaySeconds: 30
             periodSeconds: 10
           readinessProbe:
             httpGet:
-              path: /users/health
+              path: /api/users/health
               port: 3001
             initialDelaySeconds: 5
             periodSeconds: 5

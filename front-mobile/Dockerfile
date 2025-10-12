@@ -1,16 +1,17 @@
-# Dockerfile para Front Mobile - Electronic Lock App
-FROM node:18-alpine
-
-RUN apk add --no-cache git
+FROM ghcr.io/cirruslabs/flutter:3.35.3 AS build
 
 WORKDIR /app
+COPY flutter_app/pubspec.yaml ./
+RUN flutter pub get
+COPY flutter_app/ .
+RUN flutter build web --release
 
-COPY package*.json ./
+FROM nginx:stable-alpine
 
-RUN npm install
+COPY --from=build /app/build/web /usr/share/nginx/html
 
-COPY . .
+COPY nginx.conf /etc/nginx/conf.d/default.conf
 
-EXPOSE 3004
+EXPOSE 80
 
-CMD ["npm", "start"]
+CMD ["nginx", "-g", "daemon off;"]
