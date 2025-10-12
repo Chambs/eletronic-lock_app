@@ -41,7 +41,7 @@ class _LockPageState extends State<LockPage> {
   Future<void> _fetchInitialDetails() async {
     try {
       final inviteCodeResponse = await http.get(
-        Uri.parse('/api/locks/invite-code?code=${widget.registrationCode}')
+        Uri.parse('/api/locks/invite-code?code=${widget.registrationCode}'),
       );
 
       if (inviteCodeResponse.statusCode != 200) {
@@ -70,14 +70,18 @@ class _LockPageState extends State<LockPage> {
   }
 
   void _startStatusPolling() {
-    _statusTimer = Timer.periodic(const Duration(milliseconds: 100), (timer) async {
+    _statusTimer = Timer.periodic(const Duration(milliseconds: 100), (
+      timer,
+    ) async {
       try {
-        final response = await http.get(Uri.parse('/api/locks/status?code=${widget.registrationCode}'));
+        final response = await http.get(
+          Uri.parse('/api/locks/status?code=${widget.registrationCode}'),
+        );
         if (response.statusCode == 200) {
           final newStatus = jsonDecode(response.body)['status'];
           if (mounted && _lockDetails?['status'] != newStatus) {
             setState(() {
-              _lockDetails?['status'] = newStatus == 'Aberta' ? 'Open' : 'Closed';
+              _lockDetails?['status'] = newStatus;
             });
           }
         }
@@ -89,11 +93,19 @@ class _LockPageState extends State<LockPage> {
     final confirm = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text('${action == 'ABRIR' ? 'Open' : 'Close'} Lock'),
-        content: Text('Are you sure you want to ${action == 'ABRIR' ? 'open' : 'close'} the lock?'),
+        title: Text('${action == 'OPEN' ? 'Open' : 'Close'} Lock'),
+        content: Text(
+          'Are you sure you want to ${action == 'OPEN' ? 'open' : 'close'} the lock?',
+        ),
         actions: [
-          TextButton(onPressed: () => Navigator.of(context).pop(false), child: const Text('Cancel')),
-          TextButton(onPressed: () => Navigator.of(context).pop(true), child: const Text('Confirm')),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text('Confirm'),
+          ),
         ],
       ),
     );
@@ -105,40 +117,49 @@ class _LockPageState extends State<LockPage> {
       final user = prefs.getString('user');
       final email = prefs.getString('email');
 
-      if (user == null || email == null) throw Exception('Unauthenticated user.');
+      if (user == null || email == null)
+        throw Exception('Unauthenticated user.');
 
       await http.post(
         Uri.parse('/api/users/lock-actions'),
         headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({'user': user, 'action': action, 'code': widget.registrationCode}),
+        body: jsonEncode({
+          'user': user,
+          'action': action,
+          'code': widget.registrationCode,
+        }),
       );
 
-      final newStatus = action == 'ABRIR' ? 'Aberta' : 'Fechada';
-      final ns = action == 'ABRIR' ? 'Open' : 'Closed';
+      final newStatus = action == 'OPEN' ? 'Open' : 'Closed';
       final statusResponse = await http.post(
         Uri.parse('/api/locks/status'),
         headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({'status': newStatus, 'code': widget.registrationCode}),
+        body: jsonEncode({
+          'status': newStatus,
+          'code': widget.registrationCode,
+        }),
       );
-      
+
       if (statusResponse.statusCode != 200) {
         throw Exception('Error updating lock status.');
       }
 
       if (mounted) {
         setState(() {
-          _lockDetails?['status'] = ns;
+          _lockDetails?['status'] = newStatus;
         });
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error controlling the lock: ${e.toString()}')),
+          SnackBar(
+            content: Text('Error controlling the lock: ${e.toString()}'),
+          ),
         );
       }
     }
   }
-  
+
   Future<void> _handleLogHistory() async {
     if (mounted) context.go('/logs/${widget.registrationCode}');
   }
@@ -152,7 +173,9 @@ class _LockPageState extends State<LockPage> {
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Remove Access'),
-        content: const Text('Are you sure you want to remove your access to this lock?'),
+        content: const Text(
+          'Are you sure you want to remove your access to this lock?',
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
@@ -178,26 +201,29 @@ class _LockPageState extends State<LockPage> {
         final response = await http.post(
           Uri.parse('/api/locks/remove-user-access'),
           headers: {'Content-Type': 'application/json'},
-          body: jsonEncode({
-            'email': email,
-            'code': widget.registrationCode,
-          }),
+          body: jsonEncode({'email': email, 'code': widget.registrationCode}),
         );
 
         if (response.statusCode == 200) {
           if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Your access has been successfully removed.')),
+              const SnackBar(
+                content: Text('Your access has been successfully removed.'),
+              ),
             );
             context.go('/home');
           }
         } else {
-          throw Exception(jsonDecode(response.body)['error'] ?? 'Error removing access.');
+          throw Exception(
+            jsonDecode(response.body)['error'] ?? 'Error removing access.',
+          );
         }
       } catch (e) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(e.toString().replaceFirst('Exception: ', ''))),
+            SnackBar(
+              content: Text(e.toString().replaceFirst('Exception: ', '')),
+            ),
           );
         }
       }
@@ -206,13 +232,22 @@ class _LockPageState extends State<LockPage> {
 
   Widget _buildBody() {
     if (_isLoading) {
-      return const Center(child: CircularProgressIndicator(color: Colors.white));
+      return const Center(
+        child: CircularProgressIndicator(color: Colors.white),
+      );
     }
     if (_errorMessage.isNotEmpty) {
-      return Center(child: Text(_errorMessage, style: const TextStyle(color: Colors.red, fontSize: 16)));
+      return Center(
+        child: Text(
+          _errorMessage,
+          style: const TextStyle(color: Colors.red, fontSize: 16),
+        ),
+      );
     }
     if (_lockDetails == null) {
-      return const Center(child: Text('No details found.', style: TextStyle(color: Colors.white)));
+      return const Center(
+        child: Text('No details found.', style: TextStyle(color: Colors.white)),
+      );
     }
 
     final primaryButtonStyle = ElevatedButton.styleFrom(
@@ -241,17 +276,26 @@ class _LockPageState extends State<LockPage> {
               children: [
                 Text(
                   _lockDetails!['lockName'] ?? 'Gerenciar',
-                  style: const TextStyle(color: Colors.white, fontSize: 28, fontWeight: FontWeight.bold),
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 28,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
                 const SizedBox(height: 20),
                 Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Text('Status: ', style: TextStyle(color: Colors.white70, fontSize: 18)),
+                    const Text(
+                      'Status: ',
+                      style: TextStyle(color: Colors.white70, fontSize: 18),
+                    ),
                     Text(
                       _lockDetails?['status'] ?? '...',
                       style: TextStyle(
-                        color: _lockDetails?['status'] == 'Open' ? Colors.greenAccent : Colors.orangeAccent,
+                        color: _lockDetails?['status'] == 'Open'
+                            ? Colors.greenAccent
+                            : Colors.orangeAccent,
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
                       ),
@@ -262,16 +306,31 @@ class _LockPageState extends State<LockPage> {
                 Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Text('Invite code: ', style: TextStyle(color: Colors.white70, fontSize: 18)),
+                    const Text(
+                      'Invite code: ',
+                      style: TextStyle(color: Colors.white70, fontSize: 18),
+                    ),
                     SelectableText(
                       _lockDetails!['invitationCode'],
-                      style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                     IconButton(
-                      icon: const Icon(Icons.copy, color: Colors.white70, size: 20),
+                      icon: const Icon(
+                        Icons.copy,
+                        color: Colors.white70,
+                        size: 20,
+                      ),
                       onPressed: () {
-                        Clipboard.setData(ClipboardData(text: _lockDetails!['invitationCode']));
-                        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Code copied!!')));
+                        Clipboard.setData(
+                          ClipboardData(text: _lockDetails!['invitationCode']),
+                        );
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('Code copied!!')),
+                        );
                       },
                     ),
                   ],
@@ -287,9 +346,11 @@ class _LockPageState extends State<LockPage> {
                 child: ElevatedButton.icon(
                   icon: const Icon(Icons.lock_open_rounded),
                   label: const Text('Open'),
-                  onPressed: () => _handleLockAction('ABRIR'),
+                  onPressed: () => _handleLockAction('OPEN'),
                   style: primaryButtonStyle.copyWith(
-                    backgroundColor: MaterialStateProperty.all(Colors.green.shade800.withOpacity(0.8)),
+                    backgroundColor: MaterialStateProperty.all(
+                      Colors.green.shade800.withOpacity(0.8),
+                    ),
                   ),
                 ),
               ),
@@ -298,9 +359,11 @@ class _LockPageState extends State<LockPage> {
                 child: ElevatedButton.icon(
                   icon: const Icon(Icons.lock_outline_rounded),
                   label: const Text('Close'),
-                  onPressed: () => _handleLockAction('FECHAR'),
+                  onPressed: () => _handleLockAction('CLOSE'),
                   style: primaryButtonStyle.copyWith(
-                     backgroundColor: MaterialStateProperty.all(Colors.orange.shade900.withOpacity(0.8)),
+                    backgroundColor: MaterialStateProperty.all(
+                      Colors.orange.shade900.withOpacity(0.8),
+                    ),
                   ),
                 ),
               ),
@@ -327,7 +390,9 @@ class _LockPageState extends State<LockPage> {
             label: const Text('Disconnect'),
             onPressed: _handleRemoveAccess,
             style: primaryButtonStyle.copyWith(
-              backgroundColor: MaterialStateProperty.all(Colors.red.shade900.withOpacity(0.7)),
+              backgroundColor: MaterialStateProperty.all(
+                Colors.red.shade900.withOpacity(0.7),
+              ),
             ),
           ),
           const SizedBox(height: 30),
@@ -337,7 +402,9 @@ class _LockPageState extends State<LockPage> {
               foregroundColor: Colors.white,
               minimumSize: const Size(double.infinity, 50),
               side: BorderSide(color: Colors.white.withOpacity(0.5)),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
             ),
             child: const Text('Back'),
           ),
@@ -361,7 +428,10 @@ class _LockPageState extends State<LockPage> {
         appBar: AppBar(
           backgroundColor: Colors.transparent,
           elevation: 0,
-          title: const Text('Manage lock', style: TextStyle(color: Colors.white)),
+          title: const Text(
+            'Manage lock',
+            style: TextStyle(color: Colors.white),
+          ),
           leading: IconButton(
             icon: const Icon(Icons.arrow_back, color: Colors.white),
             onPressed: () => context.go('/home'),

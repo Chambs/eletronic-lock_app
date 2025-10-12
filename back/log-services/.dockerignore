@@ -8,3 +8,12 @@ README.md
 coverage
 .nyc_output
 .coverage
+
+# Arquivos e pastas gerados pelo Dart/Flutter
+.dart_tool/
+.packages
+build/
+
+# Arquivos específicos do Docker a serem ignorados
+Dockerfile
+.dockerignore

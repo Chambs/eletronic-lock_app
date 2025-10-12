@@ -12,7 +12,7 @@ let registredLocks = [
     inviteCode: 'invite1',
     adminEmail: '',
     lockName: '',
-    status: 'Fechada',
+    status: 'Closed',
     nonAdminUsers: []
   },
   {
@@ -21,7 +21,7 @@ let registredLocks = [
     inviteCode: 'invite2',
     adminEmail: '',
     lockName: '',
-    status: 'Fechada',
+    status: 'Closed',
     nonAdminUsers: []
   },
   {
@@ -30,7 +30,7 @@ let registredLocks = [
     inviteCode: 'invite3',
     adminEmail: '',
     lockName: '',
-    status: 'Fechada',
+    status: 'Closed',
     nonAdminUsers: []
   },
   {
@@ -39,7 +39,7 @@ let registredLocks = [
     inviteCode: 'invite4',
     adminEmail: '',
     lockName: '',
-    status: 'Fechada',
+    status: 'Closed',
     nonAdminUsers: []
   },
   {
@@ -48,7 +48,7 @@ let registredLocks = [
     inviteCode: 'invite5',
     adminEmail: '',
     lockName: '',
-    status: 'Fechada',
+    status: 'Closed',
     nonAdminUsers: []
   }
 ];
