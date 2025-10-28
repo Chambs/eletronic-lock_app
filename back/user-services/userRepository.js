@@ -68,5 +68,41 @@ class UserRepository {
         }
     }
 
-    
+    async deleteUser(email) {
+        try {
+            const result = await pool.query(
+                'DELETE FROM users WHERE email = $1 RETURNING *',
+                [email]
+            );
+            return result.rows[0];
+        } catch (error) {
+            console.error('Error deleting user: ', error);
+            throw error;
+        } 
+    }
+
+    async updateEmail(oldEmail, newEmail) {
+        try {
+            await pool.query('BEGIN');
+
+            await pool.query(
+                'UPDATE users SET email = $1 WHERE email =$2',
+                [newEmail, oldEmail]
+            );
+
+            await pool.query(
+                'UPDATE user_lock_access SET user_email = $1 WHERE user_email = $2',
+                [newEmail, oldEmail]
+            );
+
+            await pool.query('COMMIT');
+            return true;
+        } catch (error) {
+            await pool.query('ROLLBACK');
+            console.error('Error updating email: ', error);
+            throw error;
+        }
+    }
+
+
 }
