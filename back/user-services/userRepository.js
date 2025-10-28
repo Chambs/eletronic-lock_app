@@ -40,5 +40,33 @@ class UserRepository {
         }
     }
 
+    async updateUser(email, updates) {
+        try {
+            const setClause = [];
+            const values = [];
+            let paramCount = 1;
+
+            Object.keys(updates).forEach(key => {
+                if (updates[key] !== undefined) {
+                    setClause.push(`${key} = $${paramCount}`);
+                    values.push(updates[key]);
+                    paramCount++;
+                }
+            });
+
+            if (setClause.length === 0) {
+                throw new Error('No fields to update')
+            }
+
+            values.push(email);
+            const query = `UPDATE users SET ${setClause.join(', ')} WHERE email = $${paramCount} RETURNING *`;
+            const result = await pool.query(query, values);
+            return result.rows[0];
+        } catch (error) {
+            console.error('Error updating user: ', error);
+            throw error;
+        }
+    }
+
     
 }
