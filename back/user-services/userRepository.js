@@ -14,5 +14,16 @@ class UserRepository {
         }
     }
 
-    
+    async emailExists(email) {
+        try {
+            const result = await pool.query(
+                'SELECT EXISTS(SELECT 1 FROM users WHERE email = $1)',
+                [email]
+            );
+            return result.rows[0].exists;
+        } catch (error) {
+            console.error('Error checking email existance: ', error);
+            throw error;
+        }
+    }
 }
