@@ -26,4 +26,19 @@ class UserRepository {
             throw error;
         }
     }
+
+    async createUser({ name, email, password_hash, profile_image = null}) {
+        try {
+            const result = await pool.query(
+                'INSERT INTO users (name, email, password_hash, profile_image) VALUES ($1, $2, $3, $4) RETURNING *',
+                [name, email, password_hash, profile_image]
+            );
+            return result.rows[0];
+        } catch (error) {
+            console.error('Error creating user: ', error);
+            throw error;
+        }
+    }
+
+    
 }
