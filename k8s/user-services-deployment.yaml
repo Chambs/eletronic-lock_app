@@ -13,6 +13,10 @@ spec:
       labels:
         app: user-services
     spec:
+      initContainers:
+        - name: wait-for-postgres
+          image: postgres:15-alpine
+          command: ['sh', '-c', 'until pg_isready -h postgres-service.electronic-lock-app.svc.cluster.local -p 5432; do echo waiting for postgres; sleep 2; done;']
       containers:
         - name: user-service
           image: electronic-lock-app/user-service:latest
@@ -30,6 +34,31 @@ spec:
                 configMapKeyRef:
                   name: electronic-lock-app-config
                   key: NODE_ENV
+            - name: DATABASE_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: electronic-lock-app-config
+                  key: DATABASE_HOST
+            - name: DATABASE_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: electronic-lock-app-config
+                  key: DATABASE_PORT
+            - name: DATABASE_NAME
+              valueFrom:
+                configMapKeyRef:
+                  name: electronic-lock-app-config
+                  key: DATABASE_NAME
+            - name: DATABASE_USER
+              valueFrom:
+                configMapKeyRef:
+                  name: electronic-lock-app-config
+                  key: DATABASE_USER
+            - name: DATABASE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: POSTGRES_PASSWORD
           resources:
             requests:
               memory: "128Mi"
