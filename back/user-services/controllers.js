@@ -1,8 +1,9 @@
-const users = require('./users');
+const userRepository = require('./userRepository');
+const bcrypt = require('bcrypt');
 const axios = require('axios');
-const { getAll, findByEmail, emailExists, addUser, findUsersByCode, addAdminCodeToUser, addNonAdminCodeToUser } = require('./users');
 const multer = require('multer');
 const path = require('path');
+
 
 const USER_SERVICE = 'http://user-service.electronic-lock-app.svc.cluster.local:3001/api/users';
 const LOG_SERVICE = 'http://log-service.electronic-lock-app.svc.cluster.local:3002/api/logs';
@@ -24,35 +25,58 @@ function isValidEmail(email) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 }
 
-function getUsers(req, res) {
-  const { code } = req.query;
-  res.json(findUsersByCode(code));
+async function getUsers(req, res) {
+  try {
+    const { code } = req.query;
+    const users = await userRepository.findUsersByCode(code);
+    res.json(users);
+  } catch (error) {
+    console.error('Error getting users:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
 }
 
-function createUser(req, res) {
-  const { name, email, password } = req.body;
+async function createUser(req, res) {
+  try {
+    const { name, email, password } = req.body;
 
-  if (!name || !email || !password) {
-    return res.status(400).json({ error: 'Name, email and password are required.' });
-  }
-  if (!isValidEmail(email)) {
-    return res.status(400).json({ error: 'Invalid email format.' });
-  }
-  if (findByEmail(email)) {
-    return res.status(400).json({ error: 'This email is already registered.' });
-  }
+    if (!name || !email || !password) {
+      return res.status(400).json({ error: 'Name, email and password are required.' });
+    }
+    if (!isValidEmail(email)) {
+      return res.status(400).json({ error: 'Invalid email format.' });
+    }
 
-  addUser({ name, email, password });
-  res.status(201).json({ message: 'User created successfully.' });
+    const emailExists = await userRepository.emailExists(email);
+    if (emailExists) {
+      return res.status(400).json({ error: 'This email is already registered.' });
+    }
+
+    // hashing password
+    const saltRounds = 10;
+    const password_hash = await bcrypt.hash(password, saltRounds);
+
+    const newUser = await userRepository.createUser({
+      name,
+      email,
+      password_hash,
+      profile_image: null
+    });
+
+    res.status(201).json({ message: 'User created successfully.' });
+  } catch (error) {
+    console.error('Error creating user:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
 }
 
 async function lockAction(req, res) {
-  const { user, action, code } = req.body;
-  if (!user || !action) {
-    return res.status(400).json({ error: 'User and action are required.' });
-  }
-
   try {
+    const { user, action, code } = req.body;
+    if (!user || !action) {
+      return res.status(400).json({ error: 'User and action are required.' });
+    }
+
     await axios.post(`${LOG_SERVICE}`, {
       user,
       action,
@@ -61,101 +85,171 @@ async function lockAction(req, res) {
     });
     res.status(200).json({ message: 'Ação registrada com sucesso.' });
   } catch (error) {
+    console.error('Error logging action:', error);
     res.status(500).json({ error: 'Erro ao registrar ação no LogService.' });
   }
 }
 
 async function updateUser(req, res) {
-  const email = req.params.email;
-  const { name, email: newEmail, password } = req.body;
-  let profileImage = req.file ? req.file.filename : undefined;
+  try {
+    const email = req.params.email;
+    const { name, email: newEmail, password } = req.body;
+    let profileImage = req.file ? req.file.filename : undefined;
 
-  const user = users.getUser(email);
-  if (!user) return res.status(404).json({ error: 'Usuário não encontrado' });
+    const user = await userRepository.findByEmail(email);
+    if (!user) return res.status(404).json({ error: 'Usuário não encontrado' });
 
-  if (name) user.name = name;
-  if (password) user.password = password;
-  if (profileImage) user.profileImage = profileImage;
-
-  if (newEmail && newEmail !== email) {
-    if (users.getUser(newEmail)) {
-      return res.status(409).json({ error: 'Já existe um usuário com esse e-mail.' });
+    const updates = {};
+    if (name) updates.name = name;
+    if (profileImage) updates.profile_image = profileImage;
+    if (password) {
+      const saltRounds = 10;
+      updates.password_hash = await bcrypt.hash(password, saltRounds);
     }
 
-    users.updateEmail(email, newEmail);
+    if (newEmail && newEmail !== email) {
+      const emailExists = await userRepository.emailExists(newEmail);
+      if (emailExists) {
+        return res.status(409).json({ error: 'Já existe um usuário com esse e-mail.' });
+      }
 
-    const resp = await axios.post(`${LOCK_SERVICE}/update-email`, { email: email, newEmail: newEmail });
+      await userRepository.updateEmail(email, newEmail);
 
-    return res.json({ message: 'Usuário atualizado com sucesso!', user });
+      try {
+        await axios.post(`${LOCK_SERVICE}/update-email`, {
+          email: email,
+          newEmail: newEmail
+        });
+      } catch (error) {
+        console.error('Error updating email in lock service:', error);
+      }
+
+      return res.json({ message: 'Usuário atualizado com sucesso!', user: { ...user, email: newEmail } });
+    }
+
+    if (Object.keys(updates).length > 0) {
+      const updatedUser = await userRepository.updateUser(email, updates);
+      res.json({ message: 'Usuário atualizado com sucesso!', user: updatedUser });
+    } else {
+      res.json({ message: 'Usuário atualizado com sucesso!', user });
+    }
+  } catch (error) {
+    console.error('Error updating user:', error);
+    res.status(500).json({ error: 'Internal server error' });
   }
-
-  users.updateUser(email, user);
-  res.json({ message: 'Usuário atualizado com sucesso!', user });
 }
 
 async function deleteUser(req, res) {
-  const { email } = req.params;
-  const requester = req.body.requester;
-
-  const userToDelete = users.getUser(email);
-  const requestingUser = users.getUser(requester);
-
-  if (!userToDelete) return res.status(404).json({ error: 'Usuário não encontrado' });
-
-  if (!requestingUser) return res.status(403).json({ error: 'Operação não permitida.' });
-  const isSelf = requester === email;
-  const isAdmin = requestingUser.admin && requestingUser.admin.length > 0;
-
-  if (!isSelf && !isAdmin) {
-    return res.status(403).json({ error: 'Você não tem permissão para excluir este usuário.' });
-  }
-
-  users.deleteUser(email);
-
   try {
-    await axios.post(`${LOCK_SERVICE}/remove-user-access`, { email });
-  } catch (e) {
-    console.error('Erro ao remover acessos:', e.message);
-  }
+    const { email } = req.params;
+    const requester = req.body.requester;
 
-  res.json({ message: 'Usuário removido com sucesso.' });
+    const userToDelete = await userRepository.findByEmail(email);
+    const requestingUser = await userRepository.findByEmail(requester);
+
+    if (!userToDelete) return res.status(404).json({ error: 'Usuário não encontrado' });
+    if (!requestingUser) return res.status(403).json({ error: 'Operação não permitida.' });
+
+    // Check se user eh admin
+    const userAccess = await userRepository.findUsersByCode(''); 
+    const isAdmin = userAccess.some(access => access.user_email === requester && access.is_admin);
+
+    const isSelf = requester === email;
+    if (!isSelf && !isAdmin) {
+      return res.status(403).json({ error: 'Você não tem permissão para excluir este usuário.' });
+    }
+
+    await userRepository.deleteUser(email);
+
+    try {
+      await axios.post(`${LOCK_SERVICE}/remove-user-access`, { email });
+    } catch (e) {
+      console.error('Erro ao remover acessos:', e.message);
+    }
+
+    res.json({ message: 'Usuário removido com sucesso.' });
+  } catch (error) {
+    console.error('Error deleting user:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
 }
 
-function login(req, res) {
-  const { email, password } = req.body;
-  if (!email || !password) {
-    return res.status(400).json({ error: 'Email and password are required.' });
+async function login(req, res) {
+  try {
+    const { email, password } = req.body;
+    if (!email || !password) {
+      return res.status(400).json({ error: 'Email and password are required.' });
+    }
+
+    const user = await userRepository.findByEmail(email);
+    if (!user) {
+      return res.status(401).json({ error: 'User not found.' });
+    }
+
+    const passwordMatch = await bcrypt.compare(password, user.password_hash);
+    if (!passwordMatch) {
+      return res.status(401).json({ error: 'Incorrect password.' });
+    }
+
+    res.json({ 
+      message: 'Login successful', 
+      name: user.name, 
+      email: user.email, 
+      profileImage: user.profile_image 
+    });
+  } catch (error) {
+    console.error('Error during login:', error);
+    res.status(500).json({ error: 'Internal server error' });
   }
-  const user = users.findByEmail(email);
-  if (!user) {
-    return res.status(401).json({ error: 'User not found.' });
-  }
-  if (user.password !== password) {
-    return res.status(401).json({ error: 'Incorrect password.' });
-  }
-  res.json({ message: 'Login successful', name: user.name, email: user.email, profileImage: user.profileImage });
 }
 
-function register(req, res) {
-  const { email, code } = req.body;
-  addAdminCodeToUser(email, code);
-  res.json({ message: 'User registred' });
-}
-
-function join(req, res) {
-  const { email, code } = req.body;
-  console.log("123: "+email+" "+code);
-  addNonAdminCodeToUser(email, code);
-  res.json({ message: 'Join successful' });
-}
-
-function removeCode(req, res) {
-  const { email, code } = req.body;
-  if (!email || !code) {
-    return res.status(400).json({ error: 'Email e código são obrigatórios.' });
+async function register(req, res) {
+  try {
+    const { email, code } = req.body;
+    const success = await userRepository.addAdminCodeToUser(email, code);
+    if (success) {
+      res.json({ message: 'User registered' });
+    } else {
+      res.status(400).json({ error: 'Failed to register user' });
+    }
+  } catch (error) {
+    console.error('Error registering user:', error);
+    res.status(500).json({ error: 'Internal server error' });
   }
-  users.removeCodeFromUser(email, code);
-  res.json({ message: 'Código removido.' });
+}
+
+async function join(req, res) {
+  try {
+    const { email, code } = req.body;
+    console.log("123: " + email + " " + code);
+    const success = await userRepository.addNonAdminCodeToUser(email, code);
+    if (success) {
+      res.json({ message: 'Join successful' });
+    } else {
+      res.status(400).json({ error: 'Failed to join lock' });
+    }
+  } catch (error) {
+    console.error('Error joining lock:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+}
+
+async function removeCode(req, res) {
+  try {
+    const { email, code } = req.body;
+    if (!email || !code) {
+      return res.status(400).json({ error: 'Email e código são obrigatórios.' });
+    }
+    const success = await userRepository.removeCodeFromUser(email, code);
+    if (success) {
+      res.json({ message: 'Código removido.' });
+    } else {
+      res.status(404).json({ error: 'Código não encontrado.' });
+    }
+  } catch (error) {
+    console.error('Error removing code:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
 }
 
 module.exports = {

@@ -27,7 +27,7 @@ class UserRepository {
         }
     }
 
-    async createUser({ name, email, password_hash, profile_image = null}) {
+    async createUser({ name, email, password_hash, profile_image = null }) {
         try {
             const result = await pool.query(
                 'INSERT INTO users (name, email, password_hash, profile_image) VALUES ($1, $2, $3, $4) RETURNING *',
@@ -78,7 +78,7 @@ class UserRepository {
         } catch (error) {
             console.error('Error deleting user: ', error);
             throw error;
-        } 
+        }
     }
 
     async updateEmail(oldEmail, newEmail) {
@@ -104,5 +104,73 @@ class UserRepository {
         }
     }
 
+    async findUsersByCode(code) {
+        try {
+            const result = await pool.query(
+                `SELECT u.name, u.email, u.profile_image, 
+                CASE WHEN ula.is_admin THEN true ELSE false END as is_admin
+         FROM users u
+         JOIN user_lock_access ula ON u.email = ula.user_email
+         WHERE ula.lock_code = $1`,
+                [code]
+            );
+            return result.rows;
+        } catch (error) {
+            console.error('Error finding users by code:', error);
+            throw error;
+        }
+    }
+
+    async addAdminCodeToUser(email, registrationCode) {
+        try {
+            const result = await pool.query(
+                'INSERT INTO user_lock_access (user_email, lock_code, is_admin) VALUES ($1, $2, true) ON CONFLICT DO NOTHING RETURNING *',
+                [email, registrationCode]
+            );
+            return result.rows.length > 0;
+        } catch (error) {
+            console.error('Error adding admin code to user:', error);
+            throw error;
+        }
+    }
+
+
+    async addNonAdminCodeToUser(email, registrationCode) {
+        try {
+            const result = await pool.query(
+                'INSERT INTO user_lock_access (user_email, lock_code, is_admin) VALUES ($1, $2, false) ON CONFLICT DO NOTHING RETURNING *',
+                [email, registrationCode]
+            );
+            return result.rows.length > 0;
+        } catch (error) {
+            console.error('Error adding non-admin code to user:', error);
+            throw error;
+        }
+    }
+
+    async removeCodeFromUser(email, registrationCode) {
+        try {
+            const result = await pool.query(
+                'DELETE FROM user_lock_access WHERE user_email = $1 AND lock_code = $2 RETURNING *',
+                [email, registrationCode]
+            );
+            return result.rows.length > 0;
+        } catch (error) {
+            console.error('Error removing code from user:', error);
+            throw error;
+        }
+    }
+
+    async getAll() {
+        try {
+            const result = await pool.query('SELECT * FROM users ORDER BY created_at DESC');
+            return result.rows;
+        } catch (error) {
+            console.error('Error getting all users:', error);
+            throw error;
+        }
+    }
 
 }
+
+module.exports = new UserRepository();
