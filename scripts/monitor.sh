@@ -207,3 +207,30 @@ echo "Frontend: http://localhost:${FRONTEND_PORT}"
 echo "Database: PostgreSQL with bcrypt authentication"
 
 echo "=========================================="
+echo ""
+echo "📱 MOBILE FRONTEND:"
+echo "----------------------------------------"
+# Mobile frontend pod check
+echo -n "Mobile Frontend: "
+if kubectl get pods -n "$NS" -l app=mobile-frontend --no-headers | grep -q "Running"; then
+    echo "✅ Running"
+else
+    echo "❌ Not running"
+fi
+
+# Mobile image currently deployed
+mobile_image=$(kubectl -n "$NS" get deployment mobile-frontend -o jsonpath='{.spec.template.spec.containers[0].image}' 2>/dev/null || echo "")
+if [[ -n "$mobile_image" ]]; then
+    echo "Image: $mobile_image"
+else
+    echo "Deployment 'mobile-frontend' not found"
+fi
+
+# Mobile service access (ClusterIP)
+if kubectl get svc mobile-frontend -n "$NS" >/dev/null 2>&1; then
+    echo "Service: mobile-frontend (ClusterIP)"
+    echo "To access locally: kubectl -n $NS port-forward svc/mobile-frontend 8081:80"
+    echo "Then open: http://localhost:8081"
+else
+    echo "Service 'mobile-frontend' not found"
+fi

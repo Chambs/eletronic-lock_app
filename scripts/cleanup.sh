@@ -33,6 +33,10 @@ PROJECT_IMAGES=(
     "electronic-lock-app/event-bus:latest"
     "electronic-lock-app/frontend:latest"
     "electronic-lock-app/postgres:latest"
+    "electronic-lock-app/mobile-frontend:latest"
+    "electronic-lock-app/mobile-frontend:v1"
+    "electronic-lock-mobile-frontend:latest"
+    "electronic-lock-mobile-frontend:v1"
 )
 
 for image in "${PROJECT_IMAGES[@]}"; do
