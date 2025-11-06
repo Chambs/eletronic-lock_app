@@ -107,8 +107,8 @@ class UserRepository {
     async findUsersByCode(code) {
         try {
             const result = await pool.query(
-                `SELECT u.name, u.email, u.profile_image, 
-                CASE WHEN ula.is_admin THEN true ELSE false END as is_admin
+                `SELECT u.name, u.email, u.profile_image, ula.role,
+                CASE WHEN ula.role = 'admin' THEN true ELSE false END as is_admin
          FROM users u
          JOIN user_lock_access ula ON u.email = ula.user_email
          WHERE ula.lock_code = $1`,
@@ -124,8 +124,8 @@ class UserRepository {
     async addAdminCodeToUser(email, registrationCode) {
         try {
             const result = await pool.query(
-                'INSERT INTO user_lock_access (user_email, lock_code, is_admin) VALUES ($1, $2, true) ON CONFLICT DO NOTHING RETURNING *',
-                [email, registrationCode]
+                'INSERT INTO user_lock_access (user_email, lock_code, role) VALUES ($1, $2, $3) ON CONFLICT (user_email, lock_code) DO NOTHING RETURNING *',
+                [email, registrationCode, 'admin']
             );
             return result.rows.length > 0;
         } catch (error) {
@@ -134,16 +134,44 @@ class UserRepository {
         }
     }
 
+    async addUserCodeToUser(email, registrationCode) {
+        try {
+            const result = await pool.query(
+                'INSERT INTO user_lock_access (user_email, lock_code, role) VALUES ($1, $2, $3) ON CONFLICT (user_email, lock_code) DO NOTHING RETURNING *',
+                [email, registrationCode, 'user']
+            );
+            return result.rows.length > 0;
+        } catch (error) {
+            console.error('Error adding user code to user:', error);
+            throw error;
+        }
+    }
 
     async addNonAdminCodeToUser(email, registrationCode) {
         try {
             const result = await pool.query(
-                'INSERT INTO user_lock_access (user_email, lock_code, is_admin) VALUES ($1, $2, false) ON CONFLICT DO NOTHING RETURNING *',
-                [email, registrationCode]
+                'INSERT INTO user_lock_access (user_email, lock_code, role) VALUES ($1, $2, $3) ON CONFLICT (user_email, lock_code) DO NOTHING RETURNING *',
+                [email, registrationCode, 'guest']
             );
             return result.rows.length > 0;
         } catch (error) {
-            console.error('Error adding non-admin code to user:', error);
+            console.error('Error adding guest code to user:', error);
+            throw error;
+        }
+    }
+
+    async updateUserRole(email, lockCode, newRole) {
+        try {
+            if (!['admin', 'user', 'guest'].includes(newRole)) {
+                throw new Error('Invalid role. Must be admin, user, or guest.');
+            }
+            const result = await pool.query(
+                'UPDATE user_lock_access SET role = $1 WHERE user_email = $2 AND lock_code = $3 RETURNING *',
+                [newRole, email, lockCode]
+            );
+            return result.rows.length > 0;
+        } catch (error) {
+            console.error('Error updating user role:', error);
             throw error;
         }
     }

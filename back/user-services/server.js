@@ -20,7 +20,6 @@ async function testDatabaseConnection() {
   }
 }
 
-// Health check endpoint
 app.get('/api/users/health', (req, res) => {
   res.status(200).json({ status: 'OK', service: 'user-service' });
 });
@@ -36,7 +35,12 @@ async function startServer() {
     console.log(`UserService is running on http://0.0.0.0:${PORT}`);
   });
 }
-startServer().catch(error => {
-  console.error('Failed to start server:', error);
-  process.exit(1);
-});
+
+module.exports = app;
+
+if (require.main === module) {
+  startServer().catch(error => {
+    console.error('Failed to start server:', error);
+    process.exit(1);
+  });
+}

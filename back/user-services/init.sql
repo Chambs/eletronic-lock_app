@@ -12,9 +12,10 @@ CREATE TABLE IF NOT EXISTS user_lock_access (
     id SERIAL PRIMARY KEY,
     user_email VARCHAR(255) NOT NULL,
     lock_code VARCHAR(255) NOT NULL,
-    id_admin BOOLEAN DEFAULT FALSE,
+    role VARCHAR(20) DEFAULT 'guest' CHECK (role IN ('admin', 'user', 'guest')),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_email) REFERENCES users(email) ON DELETE CASCADE
+    FOREIGN KEY (user_email) REFERENCES users(email) ON DELETE CASCADE,
+    UNIQUE(user_email, lock_code)
 );
 
 CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
@@ -30,6 +31,6 @@ END;
 $$ language 'plpgsql';
 
 CREATE TRIGGER update_users_updated_at
-    BEFORE UpDATE ON users
+    BEFORE UPDATE ON users
     FOR EACH ROW
     EXECUTE FUNCTION update_updated_at_column();

@@ -252,6 +252,43 @@ async function removeCode(req, res) {
   }
 }
 
+async function updateRole(req, res) {
+  try {
+    const { email, code, newRole, requesterEmail } = req.body;
+    
+    if (!email || !code || !newRole || !requesterEmail) {
+      return res.status(400).json({ error: 'Email, código, nova role e email do requisitante são obrigatórios.' });
+    }
+
+    if (!['admin', 'user', 'guest'].includes(newRole)) {
+      return res.status(400).json({ error: 'Role inválida. Deve ser admin, user ou guest.' });
+    }
+
+    // Verificar se o requisitante é admin da lock
+    const users = await userRepository.findUsersByCode(code);
+    const requester = users.find(u => u.email === requesterEmail);
+    
+    if (!requester || requester.role !== 'admin') {
+      return res.status(403).json({ error: 'Apenas administradores podem alterar roles.' });
+    }
+
+    // Verificar se está tentando alterar o próprio admin
+    if (email === requesterEmail && newRole !== 'admin') {
+      return res.status(400).json({ error: 'Você não pode remover sua própria role de admin.' });
+    }
+
+    const success = await userRepository.updateUserRole(email, code, newRole);
+    if (success) {
+      res.json({ message: 'Role atualizada com sucesso.' });
+    } else {
+      res.status(404).json({ error: 'Usuário não encontrado nesta fechadura.' });
+    }
+  } catch (error) {
+    console.error('Error updating role:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+}
+
 module.exports = {
   getUsers,
   createUser,
@@ -262,5 +299,6 @@ module.exports = {
   upload,
   register,
   join,
-  removeCode
+  removeCode,
+  updateRole
 };
