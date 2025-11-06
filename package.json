@@ -1,0 +1,21 @@
+{
+  "name": "eletronic-lock-app",
+  "version": "1.0.0",
+  "description": "Electronic Lock App - Testes E2E de Integração",
+  "scripts": {
+    "test:e2e": "jest tests/e2e/*.spec.js",
+    "test:e2e:watch": "jest tests/e2e --watch",
+    "test:all": "npm run test:e2e --prefix back/user-services && npm run test:e2e --prefix back/lock-services && npm run test:e2e --prefix back/shared-bus",
+    "install:test-deps": "npm install --prefix back/user-services && npm install --prefix back/lock-services && npm install --prefix back/shared-bus"
+  },
+  "devDependencies": {
+    "axios": "^1.9.0",
+    "jest": "^29.7.0"
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "testMatch": ["tests/**/*.spec.js"],
+    "testTimeout": 30000
+  }
+}
+

@@ -15,6 +15,12 @@ app.get('/api/locks/health', (req, res) => {
 
 app.use('/api/locks', routes);
 
-app.listen(PORT, '0.0.0.0', () => {
-  console.log(`LockService is running on http://0.0.0.0:${PORT}`);
-});
+// Exportar app para testes
+module.exports = app;
+
+// Iniciar servidor apenas se não estiver sendo testado
+if (require.main === module) {
+  app.listen(PORT, '0.0.0.0', () => {
+    console.log(`LockService is running on http://0.0.0.0:${PORT}`);
+  });
+}

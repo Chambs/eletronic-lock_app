@@ -33,3 +33,6 @@ dist/
 .env
 .DS_Store
 
+# testing
+coverage/
+
