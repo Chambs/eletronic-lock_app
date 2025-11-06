@@ -16,7 +16,8 @@ function UsersPage() {
 
   const loggedEmail = localStorage.getItem('email');
   const code = localStorage.getItem('code');
-  const isAdmin = users.find(u => u.email === loggedEmail)?.isAdmin;
+  const currentUser = users.find(u => u.email === loggedEmail);
+  const isAdmin = currentUser?.role === 'admin';
 
   useEffect(() => { fetchUsers(); }, []);
 
@@ -46,16 +47,31 @@ function UsersPage() {
     }
   }
 
+  async function handleRoleChange(email, newRole) {
+    try {
+      await axios.post('/api/users/update-role', {
+        email,
+        code,
+        newRole,
+        requesterEmail: loggedEmail
+      });
+      alert('Role atualizada com sucesso!');
+      fetchUsers();
+    } catch (e) {
+      alert(e.response?.data?.error || 'Erro ao atualizar role.');
+    }
+  }
+
   function openEdit(user) {
     setEditingUser(user);
-    setEditForm({ name: user.name, email: user.email, password: '' });
+    setEditForm({ name: user.name, email: user.email, password: '', role: user.role || 'guest' });
     setSelectedImage(null);
     setError('');
   }
 
   function closeEdit() {
     setEditingUser(null);
-    setEditForm({ name: '', email: '', password: '' });
+    setEditForm({ name: '', email: '', password: '', role: 'guest' });
     setSelectedImage(null);
     setError('');
   }
@@ -99,6 +115,7 @@ function UsersPage() {
     }
 
     try {
+      // Update user profile
       const formData = new FormData();
       formData.append('name', editForm.name);
       formData.append('email', editForm.email);
@@ -111,6 +128,16 @@ function UsersPage() {
       await axios.put(`/api/users/${editingUser.email}`, formData, {
         headers: { 'Content-Type': 'multipart/form-data' }
       });
+
+      // Update role if changed and user is admin
+      if (isAdmin && editingUser.email !== loggedEmail && editForm.role !== editingUser.role) {
+        await axios.post('/api/users/update-role', {
+          email: editingUser.email,
+          code,
+          newRole: editForm.role,
+          requesterEmail: loggedEmail
+        });
+      }
 
       closeEdit();
       fetchUsers();
@@ -154,19 +181,31 @@ function UsersPage() {
                   <b>Email:</b> {user.email}
                 </div>
                 <div>
-                  <b>Função:</b> {user.isAdmin ? "Admin" : "Convidado"}
+                  <b>Função:</b>{' '}
+                  <span>
+                    {user.role === 'admin' ? 'Admin' : user.role === 'user' ? 'User' : 'Convidado'}
+                  </span>
                 </div>
-                {isAdmin && !user.isAdmin && (
-                  <button
-                    className="page-button"
-                    style={{ marginTop: 12, padding: "4px 16px", fontSize: 14, backgroundColor: '#e57373', color: '#fff' }}
-                    onClick={() => handleRemoveUser(user.email)}
-                  >
-                    Excluir
-                  </button>
+                {isAdmin && user.role !== 'admin' && (
+                  <div style={{ display: 'flex', gap: 8, marginTop: 12 }}>
+                    <button
+                      className="page-button"
+                      style={{ padding: "4px 16px", fontSize: 14, backgroundColor: '#e57373', color: '#fff' }}
+                      onClick={() => handleRemoveUser(user.email)}
+                    >
+                      Excluir
+                    </button>
+                    <button
+                      className="page-button"
+                      style={{ padding: "4px 16px", fontSize: 14 }}
+                      onClick={() => openEdit(user)}
+                    >
+                      Editar
+                    </button>
+                  </div>
                 )}
 
-                {user.email === loggedEmail && user.name === localStorage.getItem('user') && (
+                {user.email === loggedEmail && user.name === localStorage.getItem('user') && !(isAdmin && user.role !== 'admin') && (
                   <button
                     className="page-button"
                     style={{ marginTop: 12, padding: "4px 16px", fontSize: 14 }}
@@ -234,6 +273,33 @@ function UsersPage() {
                 />
               </label>
             </div>
+            {isAdmin && editingUser.email !== loggedEmail && (
+              <div style={{ marginBottom: 10 }}>
+                <label style={{ color: '#333' }}>Função:<br />
+                  <select
+                    name="role"
+                    value={editForm.role}
+                    onChange={handleChange}
+                    style={{
+                      width: '100%',
+                      padding: '8px',
+                      borderRadius: '4px',
+                      border: '1px solid #CCC',
+                      backgroundColor: 'white',
+                      fontSize: '14px',
+                      color: 'black'
+                    }}
+                  >
+                    <option value="admin" style={{ color: '#333' }}>Admin</option>
+                    <option value="user" style={{ color: '#333' }}>User</option>
+                    <option value="guest" style={{ color: '#333' }}>Convidado</option>
+                  </select>
+                  <div style={{ marginTop: 6, fontSize: 13, color: '#555' }}>
+                    Selecionado: {editForm.role === 'admin' ? 'Admin' : editForm.role === 'user' ? 'User' : 'Convidado'}
+                  </div>
+                </label>
+              </div>
+            )}
             {error && <div style={{ color: 'red', marginBottom: 8 }}>{error}</div>}
             <button className="update-button" style={{ marginBottom: 5 }} onClick={handleEditSave}>Salvar</button>
             <button className="update-button" onClick={closeEdit}>Cancelar</button>

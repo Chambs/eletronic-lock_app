@@ -9,3 +9,9 @@ coverage
 .nyc_output
 .coverage
 dist
+tests/
+jest.config.js
+*.spec.js
+*.test.js
+*.spec.jsx
+*.test.jsx

@@ -9,5 +9,7 @@ data:
   LOCK_SERVICE_PORT: "3003"
   EVENT_BUS_PORT: "10000"
   NODE_ENV: "production"
-
-  
+  DATABASE_HOST: "postgres-service.electronic-lock-app.svc.cluster.local"
+  DATABASE_PORT: "5432"
+  DATABASE_NAME: "electronic_lock_app"
+  DATABASE_USER: "postgres"

@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../api.dart';
 
 class RegisterLockPage extends StatefulWidget {
   const RegisterLockPage({super.key});
@@ -49,7 +50,7 @@ class _RegisterLockPageState extends State<RegisterLockPage> {
       }
 
       final response1 = await http.post(
-        Uri.parse('/api/locks/register'),
+        apiUri('/api/locks/register'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
           'code': registrationCode,
@@ -66,7 +67,7 @@ class _RegisterLockPageState extends State<RegisterLockPage> {
 
       try {
         final response2 = await http.post(
-          Uri.parse('/api/users/register'),
+          apiUri('/api/users/register'),
           headers: {'Content-Type': 'application/json'},
           body: jsonEncode({
             'email': email,

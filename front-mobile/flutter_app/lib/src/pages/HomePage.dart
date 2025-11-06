@@ -5,6 +5,7 @@ import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/Lock.dart';
 import '../widgets/LockCard.dart';
+import '../api.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -41,7 +42,7 @@ class _HomePageState extends State<HomePage> {
   Future<void> _fetchLocks(String email) async {
     try {
       final response = await http.post(
-        Uri.parse('/api/locks/locks'),
+        apiUri('/api/locks/locks'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({'email': email}),
       );

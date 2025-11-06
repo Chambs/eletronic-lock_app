@@ -3,7 +3,11 @@
   "version": "1.0.0",
   "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "node run-tests.js",
+    "test:unit": "node run-tests.js --unit",
+    "test:e2e": "node run-tests.js --e2e",
+    "test:watch": "node run-tests.js --watch",
+    "test:coverage": "node run-tests.js --coverage",
     "start": "node server.js"
   },
   "keywords": [],
@@ -13,6 +17,10 @@
     "axios": "^1.9.0",
     "cors": "^2.8.5",
     "express": "^5.1.0"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "supertest": "^6.3.3"
   },
   "description": ""
 }

@@ -24,7 +24,7 @@ function LockControlPage() {
   async function handleAction(action) {
     try {
       await axios.post('/api/users/lock-actions', { user:user, action:action, code:localStorage.getItem('code')  });
-      const novoStatus = action === 'ABRIR' ? 'Aberta' : 'Fechada';
+      const novoStatus = action === 'ABRIR' ? 'Open' : 'Closed';
       await axios.post('/api/locks/status', { status: novoStatus, code: localStorage.getItem('code') });
     } catch (error) {
       alert('Erro ao controlar a fechadura.');
@@ -40,7 +40,7 @@ function LockControlPage() {
       <h1>Controle da Fechadura</h1>
       <p>Usuário logado: {user}</p>
       <div style={{ fontWeight: 'bold', marginBottom: 15 }}>
-        Status atual: <span style={{ color: status === 'Aberta' ? 'green' : 'red' }}>{status}</span>
+        Status atual: <span style={{ color: status === 'Open' ? 'green' : 'red' }}>{status}</span>
       </div>
       <div style={{ margin: '20px' }}>
         <button className="page-button" onClick={() => handleAction('ABRIR')}>ABRIR</button>

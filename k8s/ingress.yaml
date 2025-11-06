@@ -10,7 +10,6 @@ spec:
   - host: electronic-lock-app.local
     http:
       paths:
-      # --- Rotas da API ---
       - path: /api/users(/|$)(.*)
         pathType: ImplementationSpecific
         backend:
@@ -40,11 +39,20 @@ spec:
             port:
               number: 10000
 
-      # --- Rota do Frontend (ÚLTIMA) ---
       - path: /
         pathType: Prefix
         backend:
           service:
             name: frontend
+            port:
+              number: 80
+  - host: mobile.electronic-lock-app.local
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: mobile-frontend
             port:
               number: 80

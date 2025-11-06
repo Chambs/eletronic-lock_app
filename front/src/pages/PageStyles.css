@@ -305,6 +305,7 @@
   letter-spacing: 1.1px;
 }
 .badge-admin,
+.badge-user,
 .badge-guest {
   font-size: 0.97rem;
   border-radius: 7px;
@@ -316,6 +317,10 @@
 .badge-admin {
   background: #d1f5e5;
   color: #219150;
+}
+.badge-user {
+  background: #fff3cd;
+  color: #856404;
 }
 .badge-guest {
   background: #e8f2ff;

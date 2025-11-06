@@ -3,7 +3,11 @@
   "version": "1.0.0",
   "main": "eventBus.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "jest",
+    "test:unit": "jest tests/unit",
+    "test:e2e": "jest tests/e2e",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
     "start": "node eventBus.js"
   },
   "keywords": [],
@@ -13,6 +17,10 @@
     "axios": "^1.9.0",
     "cors": "^2.8.5",
     "express": "^5.1.0"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "supertest": "^6.3.3"
   },
   "description": "Event Bus for Electronic Lock App"
 }

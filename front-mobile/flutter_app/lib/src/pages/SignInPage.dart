@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../api.dart';
 
 class SignInPage extends StatefulWidget {
   const SignInPage({super.key});
@@ -27,7 +28,7 @@ class _SignInPageState extends State<SignInPage> {
 
     try {
       final response = await http.post(
-        Uri.parse('/api/users/login'),
+        apiUri('/api/users/login'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
           'email': email,

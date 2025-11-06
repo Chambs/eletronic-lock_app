@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mobile-frontend
+  namespace: electronic-lock-app
+  labels:
+    app: mobile-frontend
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: mobile-frontend
+  template:
+    metadata:
+      labels:
+        app: mobile-frontend
+    spec:
+      terminationGracePeriodSeconds: 5
+      containers:
+        - name: mobile-frontend
+          image: electronic-lock-app/mobile-frontend:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 80
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 80
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 80
+            initialDelaySeconds: 10
+            periodSeconds: 20
+
+

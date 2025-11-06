@@ -5,7 +5,7 @@ const LOG_SERVICE = 'http://log-service.electronic-lock-app.svc.cluster.local:30
 //const LOCK_SERVICE = 'http://lock-service.electronic-lock-app.svc.cluster.local:3003/api/locks';
 const EVENT_SERVICE = 'http://event-bus.electronic-lock-app.svc.cluster.local:10000/api/events';
 
-let registredLocks = [
+const getInitialLocks = () => [
   {
     lockNumber: 1,
     registrationCode: 'LOCK1',
@@ -52,6 +52,8 @@ let registredLocks = [
     nonAdminUsers: []
   }
 ];
+
+let registredLocks = getInitialLocks();
 
 function findLocksByEmail(email) {
   const result = [];
@@ -100,7 +102,8 @@ function isLockCodeExists(registrationCode) {
 
 function hasNoAdminForLock(registrationCode) {
   const lock = registredLocks.find(lock => lock.registrationCode === registrationCode);
-  return lock && !lock.adminEmail;
+  if (!lock) return false;
+  return !lock.adminEmail;
 }
 
 function assignAdminToLock(registrationCode, email, lockName) {
@@ -246,6 +249,10 @@ function updateEmail(oldEmail, newEmail) {
   });
 }
 
+function resetLocks() {
+  registredLocks = getInitialLocks();
+}
+
 module.exports = {
   findLocksByEmail,
   getStatus,
@@ -263,5 +270,6 @@ module.exports = {
   removeUserAccess,
   removeInvitedUser,
   removeOwnAccess,
-  findLockByRegistrationCode
+  findLockByRegistrationCode,
+  resetLocks
 };

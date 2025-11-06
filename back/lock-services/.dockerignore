@@ -8,3 +8,6 @@ README.md
 coverage
 .nyc_output
 .coverage
+tests/
+jest.config.js
+*.spec.js

@@ -32,6 +32,11 @@ PROJECT_IMAGES=(
     "electronic-lock-app/lock-service:latest"
     "electronic-lock-app/event-bus:latest"
     "electronic-lock-app/frontend:latest"
+    "electronic-lock-app/postgres:latest"
+    "electronic-lock-app/mobile-frontend:latest"
+    "electronic-lock-app/mobile-frontend:v1"
+    "electronic-lock-mobile-frontend:latest"
+    "electronic-lock-mobile-frontend:v1"
 )
 
 for image in "${PROJECT_IMAGES[@]}"; do
@@ -41,7 +46,16 @@ for image in "${PROJECT_IMAGES[@]}"; do
     fi
 done
 
-# 4. Clean up unused resources
+# 4. Clean up PostgreSQL volumes (if any)
+echo "🗄️  Cleaning PostgreSQL volumes..."
+if docker volume ls -q | grep -q postgres; then
+    docker volume rm $(docker volume ls -q | grep postgres) 2>/dev/null || true
+    echo "✅ PostgreSQL volumes cleaned"
+else
+    echo "ℹ️  No PostgreSQL volumes to clean"
+fi
+
+# 5. Clean up unused resources
 echo "🧽 Cleaning unused Docker resources..."
 docker volume prune -f >/dev/null 2>&1 || true
 docker network prune -f >/dev/null 2>&1 || true
@@ -52,6 +66,7 @@ echo "===================="
 echo "✅ Kubernetes resources: Cleaned"
 echo "✅ Docker containers: Cleaned"
 echo "✅ Docker images: Cleaned"
+echo "✅ PostgreSQL volumes: Cleaned"
 echo "✅ Docker volumes: Cleaned"
 echo "✅ Docker networks: Cleaned"
 echo ""

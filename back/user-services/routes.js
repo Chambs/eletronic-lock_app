@@ -11,5 +11,6 @@ router.delete('/:email', controller.deleteUser);
 router.post('/register', controller.register);
 router.post('/join', controller.join);
 router.post('/remove-code', controller.removeCode);
+router.post('/update-role', controller.updateRole);
 
 module.exports = router;
