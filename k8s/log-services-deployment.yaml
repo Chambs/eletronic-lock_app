@@ -30,6 +30,29 @@ spec:
                 configMapKeyRef:
                   name: electronic-lock-app-config
                   key: NODE_ENV
+            # PostgreSQL (instância compartilhada; DB separado para logs)
+            - name: PGHOST
+              valueFrom:
+                configMapKeyRef:
+                  name: electronic-lock-app-config
+                  key: DATABASE_HOST
+            - name: PGPORT
+              valueFrom:
+                configMapKeyRef:
+                  name: electronic-lock-app-config
+                  key: DATABASE_PORT
+            - name: PGUSER
+              valueFrom:
+                configMapKeyRef:
+                  name: electronic-lock-app-config
+                  key: DATABASE_USER
+            - name: PGDATABASE
+              value: "electronic_lock_logs"
+            - name: PGPASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: POSTGRES_PASSWORD
           resources:
             requests:
               memory: "128Mi"
