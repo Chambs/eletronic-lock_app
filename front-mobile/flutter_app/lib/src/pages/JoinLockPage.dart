@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../api.dart';
 
 class JoinLockPage extends StatefulWidget {
   const JoinLockPage({super.key});
@@ -46,7 +47,7 @@ class _JoinLockPageState extends State<JoinLockPage> {
       }
 
       final response1 = await http.post(
-        Uri.parse('/api/locks/join'),
+        apiUri('/api/locks/join'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({'invitationCode': inviteCode, 'email': email}),
       );
@@ -62,7 +63,7 @@ class _JoinLockPageState extends State<JoinLockPage> {
 
       try {
         await http.post(
-          Uri.parse('/api/events/join'),
+          apiUri('/api/events/join'),
           headers: {'Content-Type': 'application/json'},
           body: jsonEncode({
             'invitationCode': inviteCode,

@@ -6,6 +6,7 @@ import 'dart:convert';
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/Lock.dart';
+import '../api.dart';
 
 class LockPage extends StatefulWidget {
   final Lock? lock;
@@ -41,7 +42,7 @@ class _LockPageState extends State<LockPage> {
   Future<void> _fetchInitialDetails() async {
     try {
       final inviteCodeResponse = await http.get(
-        Uri.parse('/api/locks/invite-code?code=${widget.registrationCode}'),
+        apiUri('/api/locks/invite-code?code=${widget.registrationCode}'),
       );
 
       if (inviteCodeResponse.statusCode != 200) {
@@ -75,7 +76,7 @@ class _LockPageState extends State<LockPage> {
     ) async {
       try {
         final response = await http.get(
-          Uri.parse('/api/locks/status?code=${widget.registrationCode}'),
+          apiUri('/api/locks/status?code=${widget.registrationCode}'),
         );
         if (response.statusCode == 200) {
           final newStatus = jsonDecode(response.body)['status'];
@@ -121,7 +122,7 @@ class _LockPageState extends State<LockPage> {
         throw Exception('Unauthenticated user.');
 
       await http.post(
-        Uri.parse('/api/users/lock-actions'),
+        apiUri('/api/users/lock-actions'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
           'user': user,
@@ -132,7 +133,7 @@ class _LockPageState extends State<LockPage> {
 
       final newStatus = action == 'OPEN' ? 'Open' : 'Closed';
       final statusResponse = await http.post(
-        Uri.parse('/api/locks/status'),
+        apiUri('/api/locks/status'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
           'status': newStatus,
@@ -199,7 +200,7 @@ class _LockPageState extends State<LockPage> {
         }
 
         final response = await http.post(
-          Uri.parse('/api/locks/remove-user-access'),
+        apiUri('/api/locks/remove-user-access'),
           headers: {'Content-Type': 'application/json'},
           body: jsonEncode({'email': email, 'code': widget.registrationCode}),
         );

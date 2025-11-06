@@ -8,6 +8,7 @@ import 'dart:io' if (dart.library.html) 'dart:html' as html;
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'dart:typed_data';
 import '../models/User.dart';
+import '../api.dart';
 
 class UsersPage extends StatefulWidget {
   final String registrationCode;
@@ -39,7 +40,7 @@ class _UsersPageState extends State<UsersPage> {
       _currentUserEmail = prefs.getString('email');
 
       final response = await http.get(
-        Uri.parse('/api/users?code=${widget.registrationCode}'),
+        apiUri('/api/users?code=${widget.registrationCode}'),
       );
 
       if (response.statusCode == 200) {
@@ -97,9 +98,7 @@ class _UsersPageState extends State<UsersPage> {
         throw Exception("Requesting user not found. Please log in again.");
       }
 
-      final uri = Uri.parse(
-        '/api/locks/locks/${widget.registrationCode}/invitee/$emailToRemove?requester=$_currentUserEmail',
-      );
+      final uri = apiUri('/api/locks/locks/${widget.registrationCode}/invitee/$emailToRemove?requester=$_currentUserEmail');
 
       final response = await http.delete(uri);
 
@@ -370,7 +369,7 @@ class _EditUserDialogState extends State<_EditUserDialog> {
 
       var request = http.MultipartRequest(
         'PUT',
-        Uri.parse('/api/users/${widget.user.email}'),
+        apiUri('/api/users/${widget.user.email}'),
       );
       request.fields['name'] = _nameController.text;
       request.fields['email'] = _emailController.text;
@@ -437,7 +436,7 @@ class _EditUserDialogState extends State<_EditUserDialog> {
       return MemoryImage(_selectedImageBytes!);
     }
     if (widget.user.profileImage != null) {
-      return NetworkImage('/api/uploads/${widget.user.profileImage}');
+      return NetworkImage(apiUrl('/api/uploads/${widget.user.profileImage}'));
       //return NetworkImage('/api/users/uploads/${widget.user.profileImage}');
     }
     return null;
