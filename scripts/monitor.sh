@@ -33,6 +33,33 @@ kubectl get pods -n "$NS" --no-headers | while read line; do
 done
 
 echo ""
+echo "🗄️  DATABASE STATUS:"
+echo "----------------------------------------"
+# Check PostgreSQL specifically
+if kubectl get pods -n "$NS" -l app=postgres --no-headers | grep -q "Running"; then
+    echo "✅ PostgreSQL: Running"
+    
+    # Test database connection
+    echo -n "Database Connection: "
+    if kubectl exec -n "$NS" deployment/postgres -- pg_isready -U postgres -d electronic_lock_app >/dev/null 2>&1; then
+        echo "✅ Connected"
+        
+        # Check if tables exist
+        echo -n "Database Schema: "
+        table_count=$(kubectl exec -n "$NS" deployment/postgres -- psql -U postgres -d electronic_lock_app -t -c "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = 'public';" 2>/dev/null | tr -d ' ')
+        if [[ "$table_count" -ge 2 ]]; then
+            echo "✅ Tables created ($table_count tables)"
+        else
+            echo "⚠️  Schema incomplete ($table_count tables)"
+        fi
+    else
+        echo "❌ Connection failed"
+    fi
+else
+    echo "❌ PostgreSQL: Not running"
+fi
+
+echo ""
 echo "🌐 SERVICES:"
 echo "----------------------------------------"
 kubectl get services -n "$NS" --no-headers | while read line; do
@@ -81,25 +108,33 @@ fi
 echo ""
 echo "🌍 APPLICATION ACCESS:"
 echo "----------------------------------------"
-echo "Frontend: http://localhost"
-echo "User Service: http://localhost:3001 (via port-forward)"
-echo "Log Service: http://localhost:3002 (via port-forward)"
-echo "Lock Service: http://localhost:3003 (via port-forward)"
-echo "Event Bus: http://localhost:10000 (via port-forward)"
+# Get NodePort for frontend (fixed at 30080)
+FRONTEND_PORT=$(kubectl get service frontend -n "$NS" -o jsonpath='{.spec.ports[0].nodePort}' 2>/dev/null || echo "30080")
+echo "Frontend (NodePort): http://localhost:${FRONTEND_PORT}"
+echo "Frontend (Ingress): http://electronic-lock-app.local (requires /etc/hosts entry)"
+echo "User Service: http://localhost:${FRONTEND_PORT}/api/users"
+echo "PostgreSQL: postgres-service.electronic-lock-app.svc.cluster.local:5432"
 
 echo ""
 echo "🔧 QUICK TESTS:"
 echo "----------------------------------------"
 
-# Test frontend
-echo -n "Frontend (localhost): "
-if curl -s -o /dev/null -w "%{http_code}" http://localhost 2>/dev/null | grep -q "200"; then
+# Test frontend via NodePort (always available)
+echo -n "Frontend (NodePort localhost:${FRONTEND_PORT}): "
+if curl -s -o /dev/null -w "%{http_code}" http://localhost:${FRONTEND_PORT} 2>/dev/null | grep -q "200"; then
     echo "✅ OK"
 else
     echo "❌ FAILED"
+    # Try ingress hostname as fallback
+    echo -n "Frontend (ingress hostname): "
+    if curl -s -o /dev/null -w "%{http_code}" http://electronic-lock-app.local 2>/dev/null | grep -q "200"; then
+        echo "✅ OK"
+    else
+        echo "❌ FAILED (hostname may not be configured in /etc/hosts)"
+    fi
 fi
 
-# Test services via port-forward (if available)
+# Test services
 echo -n "User Service: "
 if kubectl get pods -n "$NS" -l app=user-services --no-headers | grep -q "Running"; then
     echo "✅ Running"
@@ -128,6 +163,25 @@ else
     echo "❌ Not running"
 fi
 
+echo -n "PostgreSQL: "
+if kubectl get pods -n "$NS" -l app=postgres --no-headers | grep -q "Running"; then
+    echo "✅ Running"
+else
+    echo "❌ Not running"
+fi
+
+echo ""
+echo "🗄️  DATABASE QUERIES:"
+echo "----------------------------------------"
+echo "Connect to database:"
+echo "  kubectl exec -it deployment/postgres -n $NS -- psql -U postgres -d electronic_lock_app"
+echo ""
+echo "Check users table:"
+echo "  kubectl exec -n $NS deployment/postgres -- psql -U postgres -d electronic_lock_app -c \"SELECT COUNT(*) FROM users;\""
+echo ""
+echo "Check lock access:"
+echo "  kubectl exec -n $NS deployment/postgres -- psql -U postgres -d electronic_lock_app -c \"SELECT COUNT(*) FROM user_lock_access;\""
+
 echo ""
 echo "=========================================="
 echo "📋 SUMMARY:"
@@ -148,6 +202,8 @@ else
     echo "   kubectl logs -l app=<service-name> -n $NS"
 fi
 
-echo "Frontend: http://localhost"
+FRONTEND_PORT=$(kubectl get service frontend -n "$NS" -o jsonpath='{.spec.ports[0].nodePort}' 2>/dev/null || echo "30080")
+echo "Frontend: http://localhost:${FRONTEND_PORT}"
+echo "Database: PostgreSQL with bcrypt authentication"
 
 echo "=========================================="
