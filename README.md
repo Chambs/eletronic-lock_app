@@ -28,7 +28,7 @@ O Eletronic Lock App é uma plataforma completa para **cadastro, controle e audi
 
 ---
 
-## Arquitetura dos Servi�os
+## Arquitetura dos Serviços
 
 | Componente | Stack | Porta padrão | Responsabilidades |
 | --- | --- | --- | --- |
@@ -49,7 +49,7 @@ O Eletronic Lock App é uma plataforma completa para **cadastro, controle e audi
 
 ---
 
-## Estrutura do Reposit�rio
+## Estrutura do Repositório
 
 ```
 eletronic-lock_app
@@ -64,7 +64,7 @@ eletronic-lock_app
 
 ---
 
-## Pr�-requisitos
+## Pré-requisitos
 
 - Node.js 20+ e npm 10+
 - Flutter 3.9+ / Dart 3.4+ (para log-service e front-mobile)
@@ -89,7 +89,7 @@ LOCK_SERVICE_URL=http://localhost:3003/api/locks
 EVENT_SERVICE_URL=http://localhost:10000/api/events
 ```
 
-Para subir um banco r�pido em Docker:
+Para subir um banco rápido em Docker:
 
 ```bash
 docker run --name lock-postgres -e POSTGRES_PASSWORD=password123 \
@@ -100,7 +100,7 @@ Depois, aplique os scripts `init.sql` e `migrate-roles.sql` (presentes em `back/
 
 ---
 
-## Execu��o Local (sem Kubernetes)
+## Execução Local (sem Kubernetes)
 
 ### 1. Backend
 
@@ -137,7 +137,7 @@ npm install
 npm run dev         # http://localhost:5173
 ```
 
-O build de produ��o usa `npm run build && npm run preview`.
+O build de produção usa `npm run build && npm run preview`.
 
 ### 3. Frontend Mobile (Flutter)
 
@@ -165,9 +165,9 @@ docker compose up --build
 | `scripts/deploy.sh` | Faz deploy completo em Kubernetes (namespace, Postgres, serviços, ingress). |
 | `scripts/deploy-mobile.sh` | Publica o frontend mobile no cluster. |
 | `scripts/cleanup.sh` | Remove todos os recursos criados no cluster. |
-| `scripts/monitor.sh` | Ajuda a acompanhar pods, logs e sa�de do ambiente. |
+| `scripts/monitor.sh` | Ajuda a acompanhar pods, logs e saúde do ambiente. |
 
-Antes de rodar os scripts, garanta que `kubectl` aponta para o cluster desejado e que voc� tem permiss�o para criar namespaces.
+Antes de rodar os scripts, garanta que `kubectl` aponta para o cluster desejado e que você tem permissão para criar namespaces.
 
 ---
 
