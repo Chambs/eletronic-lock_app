@@ -70,7 +70,8 @@ class _JoinLockPageState extends State<JoinLockPage> {
             'email': email,
             'user': user,
             'code': registrationCode,
-            'timestamp': DateTime.now().toIso8601String(),
+           
+            'timestamp': DateTime.now().toUtc().toIso8601String(),
           }),
         );
       } catch (e) {}
