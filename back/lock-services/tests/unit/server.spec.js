@@ -4,7 +4,6 @@ describe('Server - Unit Tests', () => {
   let app;
 
   beforeEach(() => {
-    // Clear module cache to get fresh instance
     jest.resetModules();
     app = require('../../server');
   });
@@ -42,7 +41,6 @@ describe('Server - Unit Tests', () => {
         .set('Origin', 'http://example.com')
         .set('Access-Control-Request-Method', 'GET');
 
-      // CORS should allow the request
       expect(response.status).toBeLessThan(500);
     });
 
@@ -52,7 +50,7 @@ describe('Server - Unit Tests', () => {
         .send({ email: 'test@test.com' })
         .set('Content-Type', 'application/json');
 
-      expect(response.status).not.toBe(415); // Not Unsupported Media Type
+      expect(response.status).not.toBe(415);
     });
 
     it('should mount routes on /api/locks prefix', async () => {
@@ -60,7 +58,6 @@ describe('Server - Unit Tests', () => {
         .get('/api/locks/status')
         .query({ code: 'LOCK1' });
 
-      // Should not return 404 if route is properly mounted
       expect(response.status).not.toBe(404);
     });
   });
@@ -107,7 +104,6 @@ describe('Server - Unit Tests', () => {
         .post('/api/locks/register')
         .send({ code: 'LOCK1', nickname: 'Test', admin: 'test@test.com' });
 
-      // Route exists and responds (200 or 409 if already has admin)
       expect([200, 409]).toContain(response.status);
     });
 
@@ -116,7 +112,6 @@ describe('Server - Unit Tests', () => {
         .post('/api/locks/join')
         .send({ type: 'JOIN', invitationCode: 'invite1', email: 'test@test.com' });
 
-      // Route exists and responds (200, 409, or 423)
       expect([200, 409, 423]).toContain(response.status);
     });
 
@@ -142,7 +137,6 @@ describe('Server - Unit Tests', () => {
         .post('/api/locks/remove-user-access')
         .send({ email: 'test@test.com' });
 
-      // Should not be 404 (route exists), will be 400 for missing params
       expect(response.status).not.toBe(404);
     });
   });
@@ -153,7 +147,7 @@ describe('Server - Unit Tests', () => {
         .get('/api/locks/status')
         .query({ code: 'LOCK1' });
 
-      expect(response.status).not.toBe(405); // Not Method Not Allowed
+      expect(response.status).not.toBe(405);
     });
 
     it('should accept POST requests on status endpoint', async () => {
