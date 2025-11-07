@@ -1,7 +1,7 @@
 # Electronic Lock App
 
 Projeto Integrado - ECM252 & ECM516  
-**Instituto Mau� de Tecnologia (2025)**
+**Instituto Mauá de Tecnologia (2025)**
 
 ---
 
@@ -16,7 +16,7 @@ Projeto Integrado - ECM252 & ECM516
 
 ---
 
-## Visao Geral
+## Visão Geral
 
 O Eletronic Lock App é uma plataforma completa para **cadastro, controle e auditoria de fechaduras eletr�nicas**. O ecossistema oferece:
 
@@ -197,7 +197,7 @@ Mantenha os serviços necessários ativos antes de rodar testes E2E.
 
 ---
 
-## C�digos de Registro e Convite (dados seed)
+## Códigos de Registro e Convite (dados seed)
 
 | Fechadura | Código de Registro | Código de Convite |
 | --- | --- | --- |
