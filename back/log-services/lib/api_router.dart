@@ -12,15 +12,15 @@ class ApiRouter {
   Router get router {
     final router = Router();
 
-    router.get('/', (Request request) {
+    router.get('/', (Request request) async {
       final code = request.url.queryParameters['code'];
       if (code == null || code.isEmpty) {
         return Response.badRequest(body: 'Parameter "code" is required.');
       }
-      
-      final logs = _logService.getLogsByCode(code);
+
+      final logs = await _logService.getLogsByCode(code);
       final jsonLogs = logs.map((log) => log.toJson()).toList();
-      
+
       return Response.ok(
         jsonEncode(jsonLogs),
         headers: {'Content-Type': 'application/json'},
@@ -32,19 +32,20 @@ class ApiRouter {
       final user = body['user'];
       final action = body['action'];
       final code = body['code'];
-      final timestamp = body['timestamp'];
 
-      if (user == null || action == null || timestamp == null || code == null) {
+      if (user == null || action == null || code == null) {
         return Response.badRequest(
-          body: jsonEncode({'error': 'Fields user, action, code, and timestamp are required.'}),
+          body: jsonEncode({'error': 'Fields user, action and code are required.'}),
           headers: {'Content-Type': 'application/json'},
         );
       }
-      
-      final newLog = LogEntry(user: user, action: action, timestamp: timestamp);
-      _logService.addOrCreateLog(code, newLog);
 
-      return Response(201, 
+      // Normalize timestamp on server to avoid timezone drift
+      final nowUtc = DateTime.now().toUtc().toIso8601String();
+      final newLog = LogEntry(user: user, action: action, timestamp: nowUtc);
+      await _logService.addOrCreateLog(code, newLog);
+
+      return Response(201,
         body: jsonEncode({'message': 'Log registered successfully.'}),
         headers: {'Content-Type': 'application/json'},
       );
@@ -55,19 +56,20 @@ class ApiRouter {
       final body = jsonDecode(await request.readAsString());
       final user = body['user'];
       final code = body['code'];
-      final timestamp = body['timestamp'];
 
-      if (user == null || code == null || timestamp == null) {
+      if (user == null || code == null) {
         return Response.badRequest(
-          body: jsonEncode({'error': 'Fields user, code, and timestamp are required.'}),
+          body: jsonEncode({'error': 'Fields user and code are required.'}),
           headers: {'Content-Type': 'application/json'},
         );
       }
 
-      final newLog = LogEntry(user: user, action: "joined as a guest", timestamp: timestamp);
-      _logService.addOrCreateLog(code, newLog);
+      // Always use server UTC time for join logs
+      final nowUtc = DateTime.now().toUtc().toIso8601String();
+      final newLog = LogEntry(user: user, action: "joined as a guest", timestamp: nowUtc);
+      await _logService.addOrCreateLog(code, newLog);
 
-      return Response(201, 
+      return Response(201,
         body: jsonEncode({'message': 'Log registered successfully.'}),
         headers: {'Content-Type': 'application/json'},
       );
@@ -85,7 +87,7 @@ class ApiRouter {
         );
       }
 
-      _logService.resetLogsByCode(code);
+      await _logService.resetLogsByCode(code);
       return Response.ok(
         jsonEncode({'message': 'Logs have been reset.'}),
         headers: {'Content-Type': 'application/json'},

@@ -42,7 +42,7 @@ until kubectl exec -n "$NS" deployment/postgres -- psql -U postgres -c "SELECT 1
 done
 echo "   ✅ PostgreSQL is ready to accept connections"
 
-# Initialize database schema
+# Initialize database schema (user-service DB)
 echo "🔧 Initializing database schema..."
 # Windows compatibility: avoid kubectl cp issues by piping SQL directly
 # Read the SQL file and pipe it to psql (works better on Windows)
@@ -61,6 +61,11 @@ if [ -f ../back/user-services/migrate-roles.sql ]; then
 else
     echo "   ⚠️  Warning: migrate-roles.sql not found, skipping migration"
 fi
+
+# Ensure log-service database exists (separate DB on shared Postgres)
+echo "Ensuring log-service database exists..."
+kubectl apply -f ../k8s/log-service-db-job.yaml
+kubectl wait --for=condition=complete job/log-service-db-bootstrap -n "$NS" --timeout=180s || true
 
 # Deployments
 echo "🚀 Deploying microservices..."
