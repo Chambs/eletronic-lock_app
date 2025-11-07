@@ -12,6 +12,14 @@ class LockCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final String roleLabel =
+        (lock.role ?? (lock.isAdmin ? 'admin' : 'guest'));
+    final Color roleColor = roleLabel == 'admin'
+        ? Colors.amber.shade800
+        : roleLabel == 'user'
+            ? Colors.blue.shade800
+            : Colors.grey.shade700;
+
     return Card(
       color: Colors.white.withOpacity(0.08),
       shape: RoundedRectangleBorder(
@@ -40,11 +48,11 @@ class LockCard extends StatelessWidget {
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                         decoration: BoxDecoration(
-                          color: lock.isAdmin ? Colors.amber.shade800 : Colors.blue.shade800,
+                          color: roleColor,
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Text(
-                          lock.isAdmin ? 'Admin' : 'Guest',
+                          roleLabel[0].toUpperCase() + roleLabel.substring(1),
                           style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12),
                         ),
                       ),

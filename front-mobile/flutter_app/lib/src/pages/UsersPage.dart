@@ -51,7 +51,7 @@ class _UsersPageState extends State<UsersPage> {
 
         final currentUser = fetchedUsers.firstWhere(
           (u) => u.email == _currentUserEmail,
-          orElse: () => User(name: '', email: '', isAdmin: false),
+          orElse: () => User(name: '', email: '', isAdmin: false, role: ''),
         );
 
         setState(() {
@@ -131,6 +131,49 @@ class _UsersPageState extends State<UsersPage> {
     }
   }
 
+  Future<void> _updateUserRole(String targetEmail, String newRole) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final requesterEmail = prefs.getString('email');
+      if (requesterEmail == null) throw Exception('Requester not found.');
+
+      final resp = await http.post(
+        apiUri('/api/users/update-role'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'email': targetEmail,
+          'code': widget.registrationCode,
+          'newRole': newRole,
+          'requesterEmail': requesterEmail,
+        }),
+      );
+
+      if (resp.statusCode >= 200 && resp.statusCode < 300) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Role updated successfully!'),
+              backgroundColor: Colors.green,
+            ),
+          );
+        }
+        _fetchUsers();
+      } else {
+        final body = jsonDecode(resp.body);
+        throw Exception(body['error'] ?? 'Error updating role.');
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(e.toString().replaceFirst('Exception: ', '')),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
+
   void _showEditUserDialog(User user) {
     showDialog(
       context: context,
@@ -180,14 +223,33 @@ class _UsersPageState extends State<UsersPage> {
                     style: const TextStyle(color: Colors.white70),
                   ),
                   const SizedBox(height: 4),
-                  Text(
-                    'Role: ${user.isAdmin ? "Admin" : "Guest"}',
-                    style: const TextStyle(color: Colors.white70),
-                  ),
+                Text(
+                  'Role: ${user.role.isNotEmpty ? user.role : (user.isAdmin ? "admin" : "guest")}',
+                  style: const TextStyle(color: Colors.white70),
+                ),
                   const SizedBox(height: 12),
                   Row(
                     children: [
-                      if (_currentUserIsAdmin && !user.isAdmin)
+                    if (_currentUserIsAdmin && user.email != _currentUserEmail) ...[
+                      DropdownButton<String>(
+                        value: user.role.isNotEmpty
+                            ? user.role
+                            : (user.isAdmin ? 'admin' : 'guest'),
+                        dropdownColor: Colors.white,
+                        items: const [
+                          DropdownMenuItem(value: 'admin', child: Text('Admin')),
+                          DropdownMenuItem(value: 'user', child: Text('User')),
+                          DropdownMenuItem(value: 'guest', child: Text('Guest')),
+                        ],
+                        onChanged: (newRole) {
+                          if (newRole != null) {
+                            _updateUserRole(user.email, newRole);
+                          }
+                        },
+                      ),
+                      const SizedBox(width: 10),
+                    ],
+                    if (_currentUserIsAdmin && !user.isAdmin)
                         ElevatedButton(
                           onPressed: () => _handleRemoveUser(user.email),
                           style: ElevatedButton.styleFrom(

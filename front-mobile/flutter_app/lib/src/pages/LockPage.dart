@@ -23,6 +23,10 @@ class _LockPageState extends State<LockPage> {
   String _errorMessage = '';
   Map<String, dynamic>? _lockDetails;
   Timer? _statusTimer;
+  String _myRole = 'guest';
+  bool get _isAdmin => _myRole == 'admin';
+  bool get _canViewLogs => _myRole == 'admin' || _myRole == 'user';
+  bool get _canManageUsers => _myRole == 'admin';
 
   @override
   void initState() {
@@ -51,6 +55,25 @@ class _LockPageState extends State<LockPage> {
 
       final inviteCodeBody = jsonDecode(inviteCodeResponse.body);
 
+      // Get current user's role for this lock
+      final prefs = await SharedPreferences.getInstance();
+      final email = prefs.getString('email');
+      String myRole = 'guest';
+      try {
+        final usersResp = await http.get(
+          apiUri('/api/users?code=${widget.registrationCode}'),
+        );
+        if (usersResp.statusCode == 200 && email != null) {
+          final List<dynamic> users = jsonDecode(usersResp.body);
+          final me = users.cast<Map<String, dynamic>>().firstWhere(
+            (u) => u['email'] == email,
+            orElse: () => {},
+          );
+          myRole = (me['role'] as String?) ??
+              ((me['isAdmin'] == true) ? 'admin' : 'guest');
+        }
+      } catch (_) {}
+
       final details = {
         'invitationCode': inviteCodeBody['inviteCode'] ?? '[Error]',
         'lockName': widget.lock?.lockName ?? 'Manage lock',
@@ -58,6 +81,7 @@ class _LockPageState extends State<LockPage> {
 
       setState(() {
         _lockDetails = details;
+        _myRole = myRole;
         _isLoading = false;
       });
 
@@ -283,6 +307,26 @@ class _LockPageState extends State<LockPage> {
                     fontWeight: FontWeight.bold,
                   ),
                 ),
+                const SizedBox(height: 10),
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Text(
+                      'Your role: ',
+                      style: TextStyle(color: Colors.white70, fontSize: 16),
+                    ),
+                    Text(
+                      _myRole[0].toUpperCase() + _myRole.substring(1),
+                      style: TextStyle(
+                        color: _isAdmin
+                            ? Colors.amber
+                            : (_canViewLogs ? Colors.blueAccent : Colors.grey),
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
+                    ),
+                  ],
+                ),
                 const SizedBox(height: 20),
                 Row(
                   mainAxisSize: MainAxisSize.min,
@@ -303,39 +347,41 @@ class _LockPageState extends State<LockPage> {
                     ),
                   ],
                 ),
-                const SizedBox(height: 10),
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Text(
-                      'Invite code: ',
-                      style: TextStyle(color: Colors.white70, fontSize: 18),
-                    ),
-                    SelectableText(
-                      _lockDetails!['invitationCode'],
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
+                if (_isAdmin) ...[
+                  const SizedBox(height: 10),
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Text(
+                        'Invite code: ',
+                        style: TextStyle(color: Colors.white70, fontSize: 18),
                       ),
-                    ),
-                    IconButton(
-                      icon: const Icon(
-                        Icons.copy,
-                        color: Colors.white70,
-                        size: 20,
+                      SelectableText(
+                        _lockDetails!['invitationCode'],
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
-                      onPressed: () {
-                        Clipboard.setData(
-                          ClipboardData(text: _lockDetails!['invitationCode']),
-                        );
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Code copied!!')),
-                        );
-                      },
-                    ),
-                  ],
-                ),
+                      IconButton(
+                        icon: const Icon(
+                          Icons.copy,
+                          color: Colors.white70,
+                          size: 20,
+                        ),
+                        onPressed: () {
+                          Clipboard.setData(
+                            ClipboardData(text: _lockDetails!['invitationCode']),
+                          );
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('Code copied!!')),
+                          );
+                        },
+                      ),
+                    ],
+                  ),
+                ],
               ],
             ),
           ),
@@ -372,19 +418,24 @@ class _LockPageState extends State<LockPage> {
           ),
           const SizedBox(height: 15),
 
-          ElevatedButton.icon(
-            icon: const Icon(Icons.history),
-            label: const Text('Log History'),
-            onPressed: _handleLogHistory,
-            style: primaryButtonStyle,
-          ),
-          const SizedBox(height: 15),
-          ElevatedButton.icon(
-            icon: const Icon(Icons.group),
-            label: const Text('Registered Users'),
-            onPressed: _handleUsers,
-            style: primaryButtonStyle,
-          ),
+          if (_canViewLogs) ...[
+            ElevatedButton.icon(
+              icon: const Icon(Icons.history),
+              label: const Text('Log History'),
+              onPressed: _handleLogHistory,
+              style: primaryButtonStyle,
+            ),
+            const SizedBox(height: 15),
+          ],
+          if (_canManageUsers) ...[
+            ElevatedButton.icon(
+              icon: const Icon(Icons.group),
+              label: const Text('Registered Users'),
+              onPressed: _handleUsers,
+              style: primaryButtonStyle,
+            ),
+            const SizedBox(height: 15),
+          ],
           const SizedBox(height: 15),
           ElevatedButton.icon(
             icon: const Icon(Icons.link_off),

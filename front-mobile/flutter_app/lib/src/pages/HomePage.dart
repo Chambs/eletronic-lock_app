@@ -54,7 +54,27 @@ class _HomePageState extends State<HomePage> {
         final List<Lock> fetchedLocks = (responseBody['list'] as List)
             .map((lockJson) => Lock.fromJson(lockJson))
             .toList();
-        setState(() => _locks = fetchedLocks);
+
+        final enriched = await Future.wait(fetchedLocks.map((lock) async {
+          try {
+            final usersResp = await http.get(
+              apiUri('/api/users?code=${lock.registrationCode}'),
+            );
+            if (usersResp.statusCode == 200) {
+              final List<dynamic> users = jsonDecode(usersResp.body);
+              final me = users.cast<Map<String, dynamic>>().firstWhere(
+                (u) => u['email'] == email,
+                orElse: () => {},
+              );
+              final String role = (me['role'] as String?) ??
+                  ((me['isAdmin'] == true) ? 'admin' : 'guest');
+              return lock.copyWith(role: role);
+            }
+          } catch (_) {}
+          return lock;
+        }).toList());
+
+        setState(() => _locks = enriched);
       } else {
         _showErrorSnackbar('Error fetching locks.');
         setState(() => _locks = []);
