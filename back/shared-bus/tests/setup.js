@@ -1,9 +1,6 @@
-// Jest setup file for shared-bus tests
 
-// Set longer timeout for integration tests
 jest.setTimeout(30000);
 
-// Custom matchers for event bus
 expect.extend({
   toBeValidEventType(received) {
     const validTypes = [
@@ -47,7 +44,6 @@ expect.extend({
   },
 });
 
-// Global test utilities
 global.testUtils = {
   generateTestEvent: (type = 'LOCK_ACTION') => ({
     type,
@@ -72,7 +68,6 @@ global.testUtils = {
   sleep: (ms) => new Promise(resolve => setTimeout(resolve, ms)),
 };
 
-// Cleanup function
 global.afterEach(() => {
   jest.clearAllMocks();
 });

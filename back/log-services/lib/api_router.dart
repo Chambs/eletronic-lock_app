@@ -40,7 +40,6 @@ class ApiRouter {
         );
       }
 
-      // Normalize timestamp on server to avoid timezone drift
       final nowUtc = DateTime.now().toUtc().toIso8601String();
       final newLog = LogEntry(user: user, action: action, timestamp: nowUtc);
       await _logService.addOrCreateLog(code, newLog);
