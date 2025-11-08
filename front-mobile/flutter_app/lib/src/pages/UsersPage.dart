@@ -231,21 +231,45 @@ class _UsersPageState extends State<UsersPage> {
                   Row(
                     children: [
                     if (_currentUserIsAdmin && user.email != _currentUserEmail) ...[
-                      DropdownButton<String>(
-                        value: user.role.isNotEmpty
-                            ? user.role
-                            : (user.isAdmin ? 'admin' : 'guest'),
-                        dropdownColor: Colors.white,
-                        items: const [
-                          DropdownMenuItem(value: 'admin', child: Text('Admin')),
-                          DropdownMenuItem(value: 'user', child: Text('User')),
-                          DropdownMenuItem(value: 'guest', child: Text('Guest')),
-                        ],
-                        onChanged: (newRole) {
-                          if (newRole != null) {
-                            _updateUserRole(user.email, newRole);
-                          }
-                        },
+                      SizedBox(
+                        height: 40,
+                        child: DropdownButtonFormField<String>(
+                          value: user.role.isNotEmpty
+                              ? user.role
+                              : (user.isAdmin ? 'admin' : 'guest'),
+                          items: const [
+                            DropdownMenuItem(
+                              value: 'admin',
+                              child: Text('Admin'),
+                            ),
+                            DropdownMenuItem(
+                              value: 'user',
+                              child: Text('User'),
+                            ),
+                            DropdownMenuItem(
+                              value: 'guest',
+                              child: Text('Guest'),
+                            ),
+                          ],
+                          onChanged: (newRole) {
+                            if (newRole != null) {
+                              _updateUserRole(user.email, newRole);
+                            }
+                          },
+                          decoration: const InputDecoration(
+                            isDense: true,
+                            contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                            filled: true,
+                            fillColor: Colors.white,
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.all(Radius.circular(8)),
+                              borderSide: BorderSide.none,
+                            ),
+                          ),
+                          dropdownColor: Colors.white,
+                          iconEnabledColor: Colors.black,
+                          style: const TextStyle(color: Colors.black),
+                        ),
                       ),
                       const SizedBox(width: 10),
                     ],

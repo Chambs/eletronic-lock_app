@@ -4,11 +4,12 @@ metadata:
   name: mobile-frontend
   namespace: electronic-lock-app
 spec:
-  type: ClusterIP
+  type: NodePort
   selector:
     app: mobile-frontend
   ports:
     - port: 80
       targetPort: 80
+      nodePort: 30081
 
 
