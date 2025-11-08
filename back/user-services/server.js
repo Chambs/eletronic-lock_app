@@ -27,6 +27,7 @@ app.get('/api/users/health', (req, res) => {
 app.use('/api/users', routes);
 
 app.use('/api/uploads', express.static('uploads'));
+app.use('/api/users/uploads', express.static('uploads'));
 
 async function startServer() {
   await testDatabaseConnection();

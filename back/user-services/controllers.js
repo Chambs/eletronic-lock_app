@@ -21,6 +21,22 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage: storage });
 
+function formatUserResponse(user) {
+  if (!user) return user;
+
+  const { profile_image, is_admin, ...rest } = user;
+  const normalized = { ...rest };
+
+  if (typeof is_admin !== 'undefined') {
+    normalized.isAdmin = Boolean(is_admin);
+  } else if (typeof user.isAdmin !== 'undefined') {
+    normalized.isAdmin = Boolean(user.isAdmin);
+  }
+
+  normalized.profileImage = profile_image ?? user.profileImage ?? null;
+  return normalized;
+}
+
 function isValidEmail(email) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 }
@@ -29,7 +45,8 @@ async function getUsers(req, res) {
   try {
     const { code } = req.query;
     const users = await userRepository.findUsersByCode(code);
-    res.json(users);
+    const normalizedUsers = users.map(formatUserResponse);
+    res.json(normalizedUsers);
   } catch (error) {
     console.error('Error getting users:', error);
     res.status(500).json({ error: 'Internal server error' });
@@ -124,14 +141,17 @@ async function updateUser(req, res) {
         console.error('Error updating email in lock service:', error);
       }
 
-      return res.json({ message: 'Usuário atualizado com sucesso!', user: { ...user, email: newEmail } });
+      return res.json({
+        message: 'Usuário atualizado com sucesso!',
+        user: formatUserResponse({ ...user, email: newEmail })
+      });
     }
 
     if (Object.keys(updates).length > 0) {
       const updatedUser = await userRepository.updateUser(email, updates);
-      res.json({ message: 'Usuário atualizado com sucesso!', user: updatedUser });
+      res.json({ message: 'Usuário atualizado com sucesso!', user: formatUserResponse(updatedUser) });
     } else {
-      res.json({ message: 'Usuário atualizado com sucesso!', user });
+      res.json({ message: 'Usuário atualizado com sucesso!', user: formatUserResponse(user) });
     }
   } catch (error) {
     console.error('Error updating user:', error);
