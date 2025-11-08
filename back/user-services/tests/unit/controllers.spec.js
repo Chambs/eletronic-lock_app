@@ -51,7 +51,10 @@ describe('Controllers - Unit Tests', () => {
       await getUsers(req, res);
 
       expect(userRepository.findUsersByCode).toHaveBeenCalledWith('LOCK1');
-      expect(res.json).toHaveBeenCalledWith(mockUsers);
+      expect(res.json).toHaveBeenCalledWith([
+        { name: 'User 1', email: 'user1@test.com', profileImage: null, isAdmin: true },
+        { name: 'User 2', email: 'user2@test.com', profileImage: null, isAdmin: false }
+      ]);
     });
 
     it('should handle errors', async () => {

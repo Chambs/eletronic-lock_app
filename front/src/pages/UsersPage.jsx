@@ -95,7 +95,7 @@ function UsersPage() {
       return URL.createObjectURL(selectedImage);
     }
     if (user.profileImage) {
-      return `/api/users/uploads/${user.profileImage}`;
+      return `/api/uploads/${user.profileImage}`;
     }
     return userIcon;
   }
@@ -162,7 +162,7 @@ function UsersPage() {
           {users.map((user, idx) => (
             <div key={idx} className="user-card" style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
               <img
-                src={user.profileImage ? `/api/users/uploads/${user.profileImage}` : userIcon}
+                src={user.profileImage ? `/api/uploads/${user.profileImage}` : userIcon}
                 alt="Ícone de usuário"
                 style={{
                   width: 48,
