@@ -69,7 +69,7 @@ async function createUser(req, res) {
       return res.status(400).json({ error: 'This email is already registered.' });
     }
 
-    // hashing password
+    // hashing senha
     const saltRounds = 10;
     const password_hash = await bcrypt.hash(password, saltRounds);
 
