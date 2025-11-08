@@ -233,6 +233,7 @@ class _UsersPageState extends State<UsersPage> {
                     if (_currentUserIsAdmin && user.email != _currentUserEmail) ...[
                       SizedBox(
                         height: 40,
+                        width: 180,
                         child: DropdownButtonFormField<String>(
                           value: user.role.isNotEmpty
                               ? user.role
@@ -256,6 +257,7 @@ class _UsersPageState extends State<UsersPage> {
                               _updateUserRole(user.email, newRole);
                             }
                           },
+                          isExpanded: false,
                           decoration: const InputDecoration(
                             isDense: true,
                             contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
